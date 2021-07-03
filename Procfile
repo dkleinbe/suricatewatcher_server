@@ -1,2 +1,2 @@
-web: gunicorn gunicorn --chdir server suricate_server:app
+web: gunicorn --chdir server suricate_server:app
 
