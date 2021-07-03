@@ -1,1 +1,1 @@
-web: gunicorn app:suricate_server
+web: python server/suricate_server.py
