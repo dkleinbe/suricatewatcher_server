@@ -1,1 +1,1 @@
-web: python server/suricate_server.py
+web: gunicorn --worker-class socketio.sgunicorn.GeventSocketIOWorker --log-file=- server/suricate_server:app
