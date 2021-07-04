@@ -1,2 +1,2 @@
-web: gunicorn -k flask_sockets.worker --chdir server suricate_server:app
+web: gunicorn --worker-class eventlet --chdir server suricate_server:app
 
