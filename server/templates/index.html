@@ -8,11 +8,17 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
 
-            namespace = '/video';
+            namespace = '/video_cast';
+            
+            var socket_cmd = io('/cmd');
             var socket = io(namespace);
 
             socket.on('connect', function() {
-                socket.emit('my_event', {data: 'connected to the SocketServer...'});
+                socket.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
+            });
+
+            socket_cmd.on('connect', function() {
+                socket.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
             });
 
             socket.on('my_response', function(msg, cb) {

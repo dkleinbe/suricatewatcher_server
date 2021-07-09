@@ -1,3 +1,4 @@
+import logging
 from os import name
 from flask import Flask, render_template, session, Response
 from flask_socketio import SocketIO, emit
@@ -6,7 +7,7 @@ import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+socketio = SocketIO(app, logger = False)
 toto = 0
 img = ''
 
@@ -14,39 +15,55 @@ img = ''
 def index():
 	return render_template('index.html', async_mode=socketio.async_mode)
 
-@socketio.on('connect', namespace='/test')
+@socketio.on('connect', namespace='/video_stream')
 def on_connect():
-	print("+ session test")
+	app.logger.info("+ /video_stream: connect")
+	
 
-@socketio.on('connect', namespace='/video')
+@socketio.on('connect', namespace='/video_cast')
 def on_connect():
-	print("+ session video")
+	app.logger.info("+ /video_cast: connect")
 
-@socketio.on('my_event', namespace='/video')
+@socketio.on('connect', namespace='/cmd')
+def on_connect():
+	app.logger.info("+ /cmd: connect")
+
+@socketio.on('my_event', namespace='/video_cast')
 def test_message(message):
-	print("my_event recieved")
+	
+	app.logger.info("+ /video_cast: my_event recieved")
+
 	session['receive_count'] = session.get('receive_count', 0) + 1
 	emit('my_response',
 		 {'data': message['data'], 'count': session['receive_count']})
 		 
-@socketio.on('aaa')
-def test_connect():
-	print("Welcome, aaa received")
-	emit('aaa_response', {'data': 'Server'})
 
-@socketio.on('frame', namespace='/test')
+@socketio.on('frame', namespace='/video_stream')
 def frame_received(frame):
 	#print("frame received" + base64.b64encode(frame).decode("utf-8"))
 	global toto
 	global img
 	
-	print("+ Frame received " + str(toto))
+	app.logger.info("+ /video_stream: Frame received " + str(toto))
 	img = frame
 	toto = toto + 1
-	socketio.emit('frame', {'frame' : base64.b64encode(frame).decode("utf-8") }, namespace='/video')
-	print("+ Frame sent ")
+	socketio.emit('frame', {'frame' : base64.b64encode(frame).decode("utf-8") }, namespace='/video_cast')
+	app.logger.info("+ /video_cast: Frame sent ")
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 if __name__ == '__main__':
-	print("Launching server...")
+
+	#logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+	logging.getLogger('suricate_server').setLevel(logging.DEBUG)
+	
+	#logging.getLogger('socketio').setLevel(logging.ERROR)
+	#logging.getLogger('engineio').setLevel(logging.ERROR)
+
+	app.logger.info("Launching server...")
+	
 	socketio.run(app, host="0.0.0.0", debug=True)
-	#app.run(host='0.0.0.0', threaded=True)
+	
