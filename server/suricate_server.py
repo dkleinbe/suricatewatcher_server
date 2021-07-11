@@ -28,14 +28,19 @@ def on_connect():
 def on_connect():
 	app.logger.info("+ /cmd: connect")
 
-@socketio.on('my_event', namespace='/video_cast')
+@socketio.on('connect', namespace='/cmd_suricate')
+def on_connect():
+	app.logger.info("+ /cmd_suricate: connect")
+
+@socketio.on('cmd_1', namespace='/cmd')
 def test_message(message):
 	
-	app.logger.info("+ /video_cast: my_event recieved")
+	app.logger.info("+ /cmd: cmd_1 recieved")
 
 	session['receive_count'] = session.get('receive_count', 0) + 1
-	emit('my_response',
+	emit('cmd_1_ack',
 		 {'data': message['data'], 'count': session['receive_count']})
+	socketio.emit('cmd_1', {'payload' : 'aze'}, namespace='/cmd_suricate')
 		 
 
 @socketio.on('frame', namespace='/video_stream')
