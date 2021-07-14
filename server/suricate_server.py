@@ -8,6 +8,7 @@ import time
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, logger = False)
+connection_count = 0
 toto = 0
 img = ''
 
@@ -20,9 +21,22 @@ def on_connect():
 	app.logger.info("+ /video_stream: connect")
 	
 
+
 @socketio.on('connect', namespace='/video_cast')
 def on_connect():
-	app.logger.info("+ /video_cast: connect")
+	global connection_count
+	app.logger.info("+ /video_cast: connection: Starting video stream " + str(connection_count))
+	socketio.emit('start_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate')
+	connection_count += 1
+
+@socketio.on('disconnect', namespace='/video_cast')
+def on_disconnect():
+	global connection_count
+	connection_count -= 1
+	app.logger.info("+ /video_stream disconnect " + str(connection_count))
+	if connection_count == 0:
+		socketio.emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate')
+
 
 @socketio.on('connect', namespace='/cmd')
 def on_connect():
@@ -40,7 +54,7 @@ def test_message(message):
 	session['receive_count'] = session.get('receive_count', 0) + 1
 	emit('cmd_1_ack',
 		 {'data': message['data'], 'count': session['receive_count']})
-	socketio.emit('cmd_1', {'payload' : 'aze'}, namespace='/cmd_suricate')
+	socketio.emit('start_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate')
 		 
 
 @socketio.on('frame', namespace='/video_stream')
