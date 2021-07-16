@@ -3,6 +3,7 @@ from os import name
 from flask import Flask, render_template, session, Response, request
 from flask_socketio import SocketIO, emit
 from video_cast_namespace import VideoCastNamespace
+from video_stream_namespace import VideoStreamNamespace
 import base64
 import time
 
@@ -23,10 +24,6 @@ img = ''
 def index():
 	return render_template('index.html', async_mode=socketio.async_mode, connection_count=connection_count)
 
-@socketio.on('connect', namespace='/video_stream')
-def on_connect():
-	app.logger.info("+ /video_stream: connect")
-	
 
 @socketio.on('connect', namespace='/cmd')
 def on_connect():
@@ -50,18 +47,7 @@ def test_message(message):
 		 {'data': message['data'], 'count': session['receive_count']})
 	socketio.emit('start_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate')
 		 
-
-@socketio.on('frame', namespace='/video_stream')
-def frame_received(frame):
-	#print("frame received" + base64.b64encode(frame).decode("utf-8"))
-	global toto
-	global img
-	
-	app.logger.info("+ /video_stream: Frame received " + str(toto))
-	img = frame
-	toto = toto + 1
-	socketio.emit('frame', {'frame' : base64.b64encode(frame).decode("utf-8") }, namespace='/video_cast')
-	app.logger.info("+ /video_cast: Frame sent ")
+socketio.on_namespace(VideoStreamNamespace('/video_stream'))
 
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
