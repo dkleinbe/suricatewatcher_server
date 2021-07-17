@@ -29,14 +29,16 @@ class Server:
 		socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
 		socketio.on_namespace(SuricateCmdSuricateNS('/cmd_suricate', suricate_server=self))
 		socketio.on_namespace(WatcherVideoCastNS('/video_cast', suricate_server=self))
-
-	def set_suricate_sid(self, sid):
+	
+	@property
+	def suricate_sid(self):
+		my_logger.info('+ Getting suricate sid: ' + str(self._suricate_sid))
+		return self._suricate_sid
+	
+	@suricate_sid.setter
+	def suricate_sid(self, sid):
 		my_logger.info('+ Setting suricate sid: ' + str(sid))
-		self.suricate_sid = sid
-
-	def get_suricate_sid(self):
-		my_logger.info('+ Getting suricate sid: ' + str(self.suricate_sid))
-		return self.suricate_sid
+		self._suricate_sid = sid
 
 
 server = Server()

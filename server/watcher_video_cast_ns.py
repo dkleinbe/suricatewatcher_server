@@ -23,7 +23,7 @@ class WatcherVideoCastNS(Namespace):
 		
 		WatcherVideoCastNS.connection_count += 1
 
-		suricate_sid = self.suricate_server.get_suricate_sid()
+		suricate_sid = self.suricate_server.suricate_sid
 
 		WatcherVideoCastNS.logger.info("+ /video_cast: connection: " + str(WatcherVideoCastNS.connection_count))
 		WatcherVideoCastNS.logger.info("+ /video_cast: starting suricate stream: " + str(suricate_sid))

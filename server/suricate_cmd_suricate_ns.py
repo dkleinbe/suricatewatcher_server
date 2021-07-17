@@ -16,7 +16,7 @@ class SuricateCmdSuricateNS(Namespace):
 		super(Namespace, self).__init__(namespace)
 		
 		self.suricate_server = suricate_server
-		self.suricate_server.set_suricate_sid(123)
+		self.suricate_server.suricate_sid = 'NOT_SET'
 
 	def on_connect(self):
 		""" 
@@ -26,7 +26,7 @@ class SuricateCmdSuricateNS(Namespace):
 		
 		SuricateCmdSuricateNS.logger.info("+ /cmd_suricate: connect with sid: " + str(request.sid))
 		
-		self.suricate_server.set_suricate_sid(request.sid)
+		self.suricate_server.suricate_sid = request.sid
 
 		emit('update', namespace='/debug', broadcast=True)
 
