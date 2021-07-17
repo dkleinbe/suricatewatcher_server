@@ -4,13 +4,13 @@ from flask_socketio import Namespace, emit
 
 class SuricateVideoStreamNS(Namespace):
 
-	logger = logging.getLogger(__name__)
+	logger = logging.getLogger('suricate_server.' + __name__)
 	logger.info('class SuricateVideoStreamNS')
 	
 	connection_count = 0
 
 	def __init__(self, namespace):
-		SuricateVideoStreamNS.logger.info("+ Init VideoStreamNamespace")
+		SuricateVideoStreamNS.logger.info("+ Init SuricateVideoStreamNS")
 		super(Namespace, self).__init__(namespace)
 		
 		self.frame_count = 0
