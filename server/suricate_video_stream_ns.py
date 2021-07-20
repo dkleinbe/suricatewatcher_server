@@ -19,7 +19,7 @@ class SuricateVideoStreamNS(Namespace):
 		
 		SuricateVideoStreamNS.connection_count += 1
 
-		SuricateVideoStreamNS.logger.info("+ /video_stream: connection: Starting video stream: " + str(SuricateVideoStreamNS.connection_count))
+		SuricateVideoStreamNS.logger.info("+ /video_stream: connection: " + str(SuricateVideoStreamNS.connection_count))
 
 	def on_disconnect(self):
 

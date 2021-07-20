@@ -8,21 +8,23 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
 
-            $("#watcher_value").text('---');
-
             namespace = '/debug';
         
             var socket_debug = io(namespace);
 
-            socket_debug.on('connect', function() {
-                socket_debug.emit('my_event', {data: 'connected to the SocketServer[debug]...'});
-                $("#watcher_value").text('666');
+            socket_debug.on('connect', function(msg) {
+                
+                //$("#watcher_value").text('[' + msg._nb_watchers + ']');
+                var aze = JSON.parse(msg)
+                $("#watcher_value").text('[' + aze._nb_watchers + ']');
             });
 
-            socket_debug.on('update', function(msg, cb) {
+            socket_debug.on('update', function(msg) {
                 
-                socket_debug.emit('update', {data: 'connected to the SocketServer[debug]...'});
-                $("#watcher_value").text('777');
+                /*socket_debug.emit('update', {data: 'connected to the SocketServer[debug]...'});*/
+                var aze = JSON.parse(msg)
+            
+                $("#watcher_value").text('[' + aze._nb_watchers + ']');
                
             });
 
@@ -43,7 +45,7 @@
         </tr>
         <tr>
             <td>Nb suricate</td>
-            <td>0</td>
+            <td id="suricate_value">0</td>
         </tr>
     </table>
 

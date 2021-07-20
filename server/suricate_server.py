@@ -9,6 +9,7 @@ from suricate_video_stream_ns import SuricateVideoStreamNS
 from suricate_cmd_suricate_ns import SuricateCmdSuricateNS
 import base64
 import time
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -25,7 +26,9 @@ img = ''
 
 class Server:
 	def __init__(self):
-		
+		self._nb_watchers = 0
+		self._suricate_sid = 'NOT_SET'
+
 		socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
 		socketio.on_namespace(SuricateCmdSuricateNS('/cmd_suricate', suricate_server=self))
 		socketio.on_namespace(WatcherVideoCastNS('/video_cast', suricate_server=self))
@@ -39,9 +42,25 @@ class Server:
 	def suricate_sid(self, sid):
 		my_logger.info('+ Setting suricate sid: ' + str(sid))
 		self._suricate_sid = sid
+		
+	@property
+	def nb_watchers(self):
+		my_logger.info('+ Getting nb_watchers: ' + str(self._nb_watchers))
+		return self._nb_watchers
+
+	@nb_watchers.setter
+	def nb_watchers(self, count):
+		my_logger.info('+ Setting nb_watchers: ' + str(count))
+		self._nb_watchers = count
+	
+	def dummy(self):
+		return 'TOTO: ' + str(self._nb_watchers)
+	
+	def toJSON(self):
+		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
-server = Server()
+my_server = Server()
 
 
 @app.route('/')
@@ -50,25 +69,13 @@ def index():
 
 @app.route('/debug')
 def debug():
-	return render_template('debug.html', async_mode=socketio.async_mode, connection_count=connection_count)
+	return render_template('debug.html', async_mode=socketio.async_mode, suricate_server=my_server)
 
 @socketio.on('connect', namespace='/debug')
 def on_connect():
 	#app.logger.info("+ /debug: connect")
 	pass
-"""
-@socketio.on('connect', namespace='/cmd_suricate')
-def on_connect():
-	 
-	#We get a suricate so create video_cast namespace handlers class"
-	
-	app.logger.info("+ /cmd_suricate: connect with sid: " + str(request.sid))
-	socketio.on_namespace(WatcherVideoCastNS('/video_cast', request.sid))
 
-	socketio.emit('update', namespace='/debug')
-		 
-socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
-"""
 
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
