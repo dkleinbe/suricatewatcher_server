@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, emit
 from watcher_video_cast_ns import WatcherVideoCastNS
 from suricate_video_stream_ns import SuricateVideoStreamNS
 from suricate_cmd_suricate_ns import SuricateCmdSuricateNS
+from watcher_debug_ns import WatcherDebugNS
 import base64
 import time
 import json
@@ -30,6 +31,7 @@ class Server:
 		self._watchers_count = 0
 		self._suricate_sid = 'NOT_SET'
 
+		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
 		socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
 		socketio.on_namespace(SuricateCmdSuricateNS('/cmd_suricate', suricate_server=self))
 		socketio.on_namespace(WatcherVideoCastNS('/video_cast', suricate_server=self))
@@ -79,11 +81,6 @@ def index():
 @app.route('/debug')
 def debug():
 	return render_template('debug.html', async_mode=socketio.async_mode, suricate_server=my_server)
-
-@socketio.on('connect', namespace='/debug')
-def on_connect():
-	#app.logger.info("+ /debug: connect")
-	pass
 
 
 if __name__ != '__main__':
