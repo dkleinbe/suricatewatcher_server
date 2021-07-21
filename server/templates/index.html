@@ -8,10 +8,8 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function() {
 
-            namespace = '/video_cast';
-            
-            var socket_cmd = io('/cmd');
-            var socket_video = io(namespace);
+            var socket_cmd = io('/watcher_cmd');
+            var socket_video = io('/video_cast');
 
             socket_video.on('connect', function() {
                 socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
@@ -21,13 +19,17 @@
                 socket_cmd.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
             });
 
-            socket_cmd.on('cmd_1_ack', function(msg, cb) {
-                $('#log').append('<br>' + $('<div/>').text('logs #' + msg.count + ': ' + msg.data).html());
+            socket_cmd.on('add_suricate', function(msg, cb) {
+                var aze = JSON.parse(msg)
+                $('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
                 if (cb)
                     cb();
             });
 			socket_video.on('frame', function(msg, cb) {
 				$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
+                $('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
+                $('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
+                //$('#suricates_select').append('<option value="' + msg.cont + '">' + msg.cont + '</option>')
                 /*
 				$('#log').append('<br>' + $('<div/>').text('logs # FRAME').html());
                 if (cb)
@@ -51,6 +53,18 @@
 
 	<h1>Video Streaming Demonstration</h1>
     <img id="video-frame"></img>
+
+    <div>
+        <select name="suricates" id="suricates-select">
+            <option value="">--Please choose an option--</option>
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="hamster">Hamster</option>
+            <option value="parrot">Parrot</option>
+            <option value="spider">Spider</option>
+            <option value="goldfish">Goldfish</option>
+        </select>
+    </div>
 
     <h1 style="background-color:white;">Socket</h1>
     <form id="cmd_1" method="POST" action='#'>
