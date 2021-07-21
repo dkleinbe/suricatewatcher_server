@@ -26,7 +26,8 @@ img = ''
 
 class Server:
 	def __init__(self):
-		self._nb_watchers = 0
+		self._suricate_count = 0
+		self._watchers_count = 0
 		self._suricate_sid = 'NOT_SET'
 
 		socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
@@ -42,19 +43,27 @@ class Server:
 	def suricate_sid(self, sid):
 		my_logger.info('+ Setting suricate sid: ' + str(sid))
 		self._suricate_sid = sid
-		
-	@property
-	def nb_watchers(self):
-		my_logger.info('+ Getting nb_watchers: ' + str(self._nb_watchers))
-		return self._nb_watchers
 
-	@nb_watchers.setter
-	def nb_watchers(self, count):
-		my_logger.info('+ Setting nb_watchers: ' + str(count))
-		self._nb_watchers = count
+	@property
+	def suricate_count(self):
+		my_logger.info('+ Getting suricate_count: ' + str(self._suricate_count))
+		return self._suricate_count
+
+	@suricate_count.setter
+	def suricate_count(self, count):
+		my_logger.info('+ Setting suricate_count: ' + str(count))
+		self._suricate_count = count
+
+	@property
+	def watchers_count(self):
+		my_logger.info('+ Getting watchers_count: ' + str(self._watchers_count))
+		return self._watchers_count
+
+	@watchers_count.setter
+	def watchers_count(self, count):
+		my_logger.info('+ Setting watchers_count: ' + str(count))
+		self._watchers_count = count
 	
-	def dummy(self):
-		return 'TOTO: ' + str(self._nb_watchers)
 	
 	def toJSON(self):
 		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

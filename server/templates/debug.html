@@ -16,7 +16,8 @@
                 
                 //$("#watcher_value").text('[' + msg._nb_watchers + ']');
                 var aze = JSON.parse(msg)
-                $("#watcher_value").text('[' + aze._nb_watchers + ']');
+                $("#watcher_value").text('[' + aze._watchers_count + ']');
+                $("#suricate_value").text('[' + aze._suricate_count + ']');
             });
 
             socket_debug.on('update', function(msg) {
@@ -24,7 +25,8 @@
                 /*socket_debug.emit('update', {data: 'connected to the SocketServer[debug]...'});*/
                 var aze = JSON.parse(msg)
             
-                $("#watcher_value").text('[' + aze._nb_watchers + ']');
+                $("#watcher_value").text('[' + aze._watchers_count + ']');
+                $("#suricate_value").text('[' + aze._suricate_count + ']');
                
             });
 
@@ -41,11 +43,11 @@
         <th>Description</th>
         <tr>
             <td>Nb watcher</td>
-            <td id="watcher_value">0</td>
+            <td id="watcher_value">[{{ suricate_server._watchers_count }}]</td>
         </tr>
         <tr>
             <td>Nb suricate</td>
-            <td id="suricate_value">0</td>
+            <td id="suricate_value">[{{ suricate_server._suricate_count }}]</td>
         </tr>
     </table>
 

@@ -27,14 +27,18 @@ class SuricateCmdSuricateNS(Namespace):
 		SuricateCmdSuricateNS.logger.info("+ /cmd_suricate: connect with sid: " + str(request.sid))
 		
 		self.suricate_server.suricate_sid = request.sid
+		self.suricate_server.suricate_count = SuricateCmdSuricateNS.connection_count
 
-		emit('update', namespace='/debug', broadcast=True)
+		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
 
 	def on_disconnect(self):
 
 		SuricateCmdSuricateNS.connection_count -= 1
+		self.suricate_server.suricate_count = SuricateCmdSuricateNS.connection_count
 
 		SuricateCmdSuricateNS.logger.info("+ /cmd_suricate disconnect " + str(SuricateCmdSuricateNS.connection_count))
+
+		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
 
 
 
