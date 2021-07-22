@@ -6,7 +6,7 @@ from flask import Flask, render_template, session, Response, request
 from flask_socketio import SocketIO, emit
 from watcher_video_cast_ns import WatcherVideoCastNS
 from suricate_video_stream_ns import SuricateVideoStreamNS
-from suricate_cmd_suricate_ns import SuricateCmdSuricateNS
+from suricate_cmd_ns import SuricateCmdSuricateNS
 from watcher_debug_ns import WatcherDebugNS
 import base64
 import time
