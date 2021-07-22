@@ -32,9 +32,9 @@ class Server:
 		self._suricate_sid = 'NOT_SET'
 
 		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
-		socketio.on_namespace(SuricateVideoStreamNS('/video_stream'))
-		socketio.on_namespace(SuricateCmdSuricateNS('/cmd_suricate', suricate_server=self))
-		socketio.on_namespace(WatcherVideoCastNS('/video_cast', suricate_server=self))
+		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream'))
+		socketio.on_namespace(SuricateCmdSuricateNS('/suricate_cmd', suricate_server=self))
+		socketio.on_namespace(WatcherVideoCastNS('/watcher_video_cast', suricate_server=self))
 	
 	@property
 	def suricate_sid(self):

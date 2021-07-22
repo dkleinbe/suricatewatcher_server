@@ -36,7 +36,7 @@ class SuricateVideoStreamNS(Namespace):
 		#
 		# encode and send frame to all watchers
 		#
-		emit('frame', {'frame' : base64.b64encode(frame).decode("utf-8"), 'frame_count': self.frame_count }, namespace='/video_cast', broadcast=True)
+		emit('frame', {'frame' : base64.b64encode(frame).decode("utf-8"), 'frame_count': self.frame_count }, namespace='/watcher_video_cast', broadcast=True)
 		
 		logger.info("+ %s: Frame sent ", self.namespace)
 

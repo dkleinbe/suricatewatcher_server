@@ -36,7 +36,7 @@ class WatcherVideoCastNS(Namespace):
 		#
 		logger.info("+ %s: starting suricate stream: %s", self.namespace, suricate_sid)
 
-		emit('start_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
+		emit('start_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=suricate_sid)
 
 		# update debug data
 		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)

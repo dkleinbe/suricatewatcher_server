@@ -9,7 +9,7 @@
         $(document).ready(function() {
 
             var socket_cmd = io('/watcher_cmd');
-            var socket_video = io('/video_cast');
+            var socket_video = io('/watcher_video_cast');
 
             socket_video.on('connect', function() {
                 socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
