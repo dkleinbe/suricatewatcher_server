@@ -5,22 +5,22 @@ SequenceDiagram {
 	lifeline Camera
 
 	// Suricate connect to server
-	Suricate1 --> Server "/cmd_suricate[connect]" [color=cyan]
-	Suricate1 --> Server "/video_stream[connect]" [color=gold]
+	Suricate1 --> Server "/suricate_cmd[connect]" [color=cyan]
+	Suricate1 --> Server "/suricate_video_stream[connect]" [color=gold]
 	Server --> Server "create suricate room"
 	// Watcher connnect to server
-	Watcher1 --> Server "/cmd_watcher[connect]" [color=darkviolet]
-	Watcher1 --> Server "/video_cast[connect]" [color=chartreuse2]
+	Watcher1 --> Server "/watcher_cmd[connect]" [color=darkviolet]
+	Watcher1 --> Server "/watcher_video_cast[connect]" [color=chartreuse2]
 	// Watcher select suricate to watch
 	Watcher1 --> Server "/watcher_cmd[select_suricate]" [color=darkviolet]
-	Server --> Suricate1 "/cmd_suricate[start_stream]" [color=cyan]
+	Server --> Suricate1 "/suricate_cmd[start_stream]" [color=cyan]
 	Server --> Server "add watcher to suricate room"
 
 	Suricate1 -c-> Camera "create"
 	fragment loop "stream frames" {
 	Suricate1 --> Camera "get_frame"
-	Suricate1 --> Server "/video_stream[frame]" [color=gold]
-	Server --> Watcher1 "video_cast[frame]" [color=chartreuse2]
+	Suricate1 --> Server "/suricate_video_stream[frame]" [color=gold]
+	Server --> Watcher1 "watcher_video_cast[frame]" [color=chartreuse2]
 	}
 	Suricate1 -d-> Camera "delete"
 
