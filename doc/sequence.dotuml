@@ -1,20 +1,25 @@
 SequenceDiagram {
 	actor Watcher1 	
-	lifeline Server
-	lifeline Suricate1
+	lifeline Server autoactivate
+	lifeline Suricate1 autoactivate
 	lifeline Camera
 
 	// Suricate connect to server
 	Suricate1 --> Server "/suricate_cmd[connect]" [color=cyan]
+	Server --> Server "register suricate"
+	Server -r-> Suricate1
 	Suricate1 --> Server "/suricate_video_stream[connect]" [color=gold]
-	Server --> Server "create suricate room"
+	Server -r-> Suricate1
 	// Watcher connnect to server
 	Watcher1 --> Server "/watcher_cmd[connect]" [color=darkviolet]
+	Server -r-> Watcher1
 	Watcher1 --> Server "/watcher_video_cast[connect]" [color=chartreuse2]
 	// Watcher select suricate to watch
+	
 	Watcher1 --> Server "/watcher_cmd[select_suricate]" [color=darkviolet]
 	Server --> Suricate1 "/suricate_cmd[start_stream]" [color=cyan]
 	Server --> Server "add watcher to suricate room"
+	Server -r-> Watcher1 ""
 
 	Suricate1 -c-> Camera "create"
 	fragment loop "stream frames" {
