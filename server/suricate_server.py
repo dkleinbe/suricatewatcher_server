@@ -4,13 +4,16 @@ from os import name
 
 from flask import Flask, render_template, session, Response, request
 from flask_socketio import SocketIO, emit
-from watcher_video_cast_ns import WatcherVideoCastNS
-from suricate_video_stream_ns import SuricateVideoStreamNS
-from suricate_cmd_ns import SuricateCmdSuricateNS
-from watcher_debug_ns import WatcherDebugNS
+
 import base64
 import time
 import json
+
+from suricate_video_stream_ns import SuricateVideoStreamNS
+from suricate_cmd_ns import SuricateCmdNS
+from watcher_debug_ns import WatcherDebugNS
+from watcher_cmd_ns import WatcherCmdNS
+from watcher_video_cast_ns import WatcherVideoCastNS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -25,17 +28,29 @@ connection_count = 0
 toto = 0
 img = ''
 
+class Suricate:
+	def __init__(self, id) -> None:
+		
+		self.id = id
+		self.sid_cmd = '-------'
+		self.sid_stream = '-------'
+
+
 class Server:
 	def __init__(self):
 		self._suricate_count = 0
 		self._watchers_count = 0
 		self._suricate_sid = 'NOT_SET'
+		self._suricates = {}
+		self._suricate_rooms = {}
 
 		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
-		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream'))
-		socketio.on_namespace(SuricateCmdSuricateNS('/suricate_cmd', suricate_server=self))
+		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream', suricate_server=self))
+		socketio.on_namespace(SuricateCmdNS('/suricate_cmd', suricate_server=self))
 		socketio.on_namespace(WatcherVideoCastNS('/watcher_video_cast', suricate_server=self))
+		socketio.on_namespace(WatcherCmdNS('/watcher_cmd', suricate_server=self))
 	
+
 	@property
 	def suricate_sid(self):
 		my_logger.info('+ Getting suricate sid: ' + str(self._suricate_sid))
@@ -66,7 +81,16 @@ class Server:
 		my_logger.info('+ Setting watchers_count: ' + str(count))
 		self._watchers_count = count
 	
-	
+	def create_room(self, sid, name):
+
+		self._suricate_rooms[sid] = name
+
+	def register_suricate(self, id):
+
+		suricate = Suricate(id)
+		suricate.sid_cmd = request.sid
+		self._suricates[id] = suricate
+
 	def toJSON(self):
 		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 

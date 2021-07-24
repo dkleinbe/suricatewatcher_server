@@ -10,24 +10,26 @@
 
             var socket_cmd = io('/watcher_cmd');
             var socket_video = io('/watcher_video_cast');
+            var video_sid = '';
 
             socket_video.on('connect', function() {
-                socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
+                //socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
+                video_sid = socket_video.id;
             });
 
             socket_cmd.on('connect', function() {
-                socket_cmd.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
+                //socket_cmd.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
             });
 
             socket_cmd.on('add_suricate', function(msg, cb) {
-                var aze = JSON.parse(msg)
-                $('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
+                //var aze = JSON.parse(msg)
+                $('#suricates-select').append('<option value="' + msg.suricate_id + '">' + msg.name + '</option>')
                 if (cb)
                     cb();
             });
 			socket_video.on('frame', function(msg, cb) {
 				$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
-                $('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
+                //$('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
                 $('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
                 //$('#suricates_select').append('<option value="' + msg.cont + '">' + msg.cont + '</option>')
                 /*
@@ -39,8 +41,11 @@
                 socket_cmd.emit('cmd_1', {data: $('#cmd_1_data').val()});
                 return false;
             });
-            $('form#disconnect').submit(function(event) {
-                socket_video.emit('disconnect_request');
+            $('#suricates-select').change(function(event) {
+                var id = $( "select option:selected" ).attr('value')
+                console.log(id);
+                console.log(video_sid);
+                socket_cmd.emit('suricate_selected', { suricate_id : id, watcher_sid : video_sid });
                 return false;
             });
         });
@@ -56,13 +61,7 @@
 
     <div>
         <select name="suricates" id="suricates-select">
-            <option value="">--Please choose an option--</option>
-            <option value="dog">Dog</option>
-            <option value="cat">Cat</option>
-            <option value="hamster">Hamster</option>
-            <option value="parrot">Parrot</option>
-            <option value="spider">Spider</option>
-            <option value="goldfish">Goldfish</option>
+            <option value="none">--Please choose an option--</option>
         </select>
     </div>
 
