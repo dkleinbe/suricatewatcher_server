@@ -62,6 +62,9 @@
     <div>
         <select name="suricates" id="suricates-select">
             <option value="none">--Please choose an option--</option>
+            {% for key, value in suricate_server._suricates.items() %}
+                <option value="{{ value.id }}">Suricate {{ loop.index }}</option>
+            {% endfor %}
         </select>
     </div>
 

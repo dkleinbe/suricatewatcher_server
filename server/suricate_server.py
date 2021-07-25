@@ -44,6 +44,9 @@ class Server:
 		self._suricates = {}
 		self._suricate_rooms = {}
 
+		self._suricates['AZE'] = Suricate('AZE')
+		self._suricates['QSD'] = Suricate('QSD')
+		
 		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
 		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream', suricate_server=self))
 		socketio.on_namespace(SuricateCmdNS('/suricate_cmd', suricate_server=self))
@@ -91,6 +94,14 @@ class Server:
 		suricate.sid_cmd = request.sid
 		self._suricates[id] = suricate
 
+	def suricate_id(self, sid):
+		''' return index of suricate with sid_cmd == sid in _suricates dict '''
+
+		# get index of suricate with sid_cmd == sid in _suricates dict '''
+		id = [ x.sid_cmd for x in list(self._suricates.values()) ].index(sid)
+
+		return self._suricates[id]
+
 	def toJSON(self):
 		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
@@ -100,7 +111,7 @@ my_server = Server()
 
 @app.route('/')
 def index():
-	return render_template('index.html', async_mode=socketio.async_mode, connection_count=connection_count)
+	return render_template('index.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
 
 @app.route('/debug')
 def debug():
