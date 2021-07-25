@@ -11,6 +11,7 @@
             var socket_cmd = io('/watcher_cmd');
             var socket_video = io('/watcher_video_cast');
             var video_sid = '';
+            var previous_suricate_id = 'NONE';
 
             socket_video.on('connect', function() {
                 //socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
@@ -36,23 +37,17 @@
             });
 			socket_video.on('frame', function(msg, cb) {
 				$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
-                //$('#suricates-select').append('<option value="roro">' + msg.frame_count + '</option>')
+                
                 $('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
-                //$('#suricates_select').append('<option value="' + msg.cont + '">' + msg.cont + '</option>')
-                /*
-				$('#log').append('<br>' + $('<div/>').text('logs # FRAME').html());
-                if (cb)
-                    cb();*/
+
             });
-            $('form#cmd_1').submit(function(event) {
-                socket_cmd.emit('cmd_1', {data: $('#cmd_1_data').val()});
-                return false;
-            });
+
             $('#suricates-select').change(function(event) {
                 var id = $( "select option:selected" ).attr('value')
                 console.log(id);
                 console.log(video_sid);
-                socket_cmd.emit('suricate_selected', { suricate_id : id, watcher_sid : video_sid });
+                socket_cmd.emit('suricate_selected', { suricate_id : id, watcher_sid : video_sid, previous_suricate_id : previous_suricate_id });
+                previous_suricate_id = id;
                 return false;
             });
         });
@@ -64,7 +59,7 @@
     <p>Select suricate to watch</p>
     <div>
         <select name="suricates" id="suricates-select">
-            <option value="none">--Please choose an option--</option>
+            <option value="NONE">--Please choose an option--</option>
             {% for key, value in suricate_server._suricates.items() %}
                 <option id="{{ value.id }}" value="{{ value.id }}">Suricate {{ loop.index }}</option>
             {% endfor %}

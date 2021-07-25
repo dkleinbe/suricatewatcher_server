@@ -1,14 +1,14 @@
 import logging
 from flask import request
-from flask_socketio import Namespace, emit, join_room, namespace
+from flask_socketio import Namespace, emit, join_room, leave_room, namespace
 from json import JSONEncoder, JSONDecoder
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
 class WatcherCmdNS(Namespace):
 	#
-	# namespace to cast images to suricate watchers clients
-	#
+	# namespace 
+	#+
 	
 	logger.info('class WatcherCmdNS')
 	
@@ -54,13 +54,25 @@ class WatcherCmdNS(Namespace):
 		
 		#aze = JSONDecoder().decode(suricate)
 		suricate_id = suricate['suricate_id']
-		session_id = self.suricate_server._suricates[suricate_id].sid_cmd
+		previous_suricate_id = suricate['previous_suricate_id']
 		watcher_sid = suricate['watcher_sid']
+
+		if (previous_suricate_id != 'NONE'):
+			# watcher was watching an other suricate, lets leave the room
+			logger.debug('+ removing watcher from room <%s>', previous_suricate_id)
+			leave_room(sid=watcher_sid, room=previous_suricate_id, namespace='/watcher_video_cast')
+		
+		if (suricate_id == 'NONE'):
+			# Invalide suricate id
+			return
+
+		session_id = self.suricate_server._suricates[suricate_id].sid_cmd
+					
 		#
 		# add watcher to suricat room
 		#
 		logger.info('+ Entering room [%s]', suricate_id)
-		join_room(sid=watcher_sid,room=suricate_id, namespace='/watcher_video_cast')		
+		join_room(sid=watcher_sid, room=suricate_id, namespace='/watcher_video_cast')		
 		#
 		# start suricate video stream
 		#
