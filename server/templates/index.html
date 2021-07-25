@@ -23,7 +23,14 @@
 
             socket_cmd.on('add_suricate', function(msg, cb) {
                 //var aze = JSON.parse(msg)
-                $('#suricates-select').append('<option value="' + msg.suricate_id + '">' + msg.name + '</option>')
+                $('#suricates-select').append('<option id="' + msg.suricate_id + '" value="' + msg.suricate_id + '">' + msg.name + '</option>')
+                if (cb)
+                    cb();
+            });
+
+            socket_cmd.on('remove_suricate', function(msg, cb) {
+                console.log('removing :' + msg.suricate_id);
+                $('#' + msg.suricate_id).remove();
                 if (cb)
                     cb();
             });
@@ -52,31 +59,19 @@
     </script>
 
 </head>
-<p>Nb connnection:</p>
-<p>{{ connection_count }}</p>
-<img style="background-color:white;">
-
+<body>
 	<h1>Video Streaming Demonstration</h1>
-    <img id="video-frame"></img>
-
+    <p>Select suricate to watch</p>
     <div>
         <select name="suricates" id="suricates-select">
             <option value="none">--Please choose an option--</option>
             {% for key, value in suricate_server._suricates.items() %}
-                <option value="{{ value.id }}">Suricate {{ loop.index }}</option>
+                <option id="{{ value.id }}" value="{{ value.id }}">Suricate {{ loop.index }}</option>
             {% endfor %}
         </select>
     </div>
+    <img id="video-frame"></img>
 
-    <h1 style="background-color:white;">Socket</h1>
-    <form id="cmd_1" method="POST" action='#'>
-        <input type="text" name="cmd_1_data" id="cmd_1_data" placeholder="Message">
-        <input type="submit" value="Send Cmd_1">
-    </form>
-
-    <form id="disconnect" method="POST" action="#">
-        <input type="submit" value="Disconnect Server">
-    </form>
     <h2 style="background-color:white;">Logs</h2>
     <div id="log" ></div>
 </body>

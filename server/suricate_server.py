@@ -43,9 +43,6 @@ class Server:
 		self._suricate_sid = 'NOT_SET'
 		self._suricates = {}
 		self._suricate_rooms = {}
-
-		self._suricates['AZE'] = Suricate('AZE')
-		self._suricates['QSD'] = Suricate('QSD')
 		
 		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
 		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream', suricate_server=self))
@@ -94,13 +91,17 @@ class Server:
 		suricate.sid_cmd = request.sid
 		self._suricates[id] = suricate
 
+	def remove_suricate(self, id):
+
+		del self._suricates[id]
+
 	def suricate_id(self, sid):
 		''' return index of suricate with sid_cmd == sid in _suricates dict '''
 
 		# get index of suricate with sid_cmd == sid in _suricates dict '''
-		id = [ x.sid_cmd for x in list(self._suricates.values()) ].index(sid)
+		index = [ x.sid_cmd for x in list(self._suricates.values()) ].index(sid)
 
-		return self._suricates[id]
+		return list(self._suricates.values())[index]
 
 	def toJSON(self):
 		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

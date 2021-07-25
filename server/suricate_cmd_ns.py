@@ -47,11 +47,21 @@ class SuricateCmdNS(Namespace):
 
 	def on_disconnect(self):
 
+		logger.info("+ %s disconnect %d", self.namespace, SuricateCmdNS.connection_count)
+
 		SuricateCmdNS.connection_count -= 1
 		self.suricate_server.suricate_count = SuricateCmdNS.connection_count
-		self.suricate_server.suricate_id(request.sid)
+		id = self.suricate_server.suricate_id(request.sid).id
+		#
+		# tell to all watchers  suricate has gone
+		#		
+		emit('remove_suricate',
+			{'suricate_id' : id },
+			namespace='/watcher_cmd',
+			broadcast=True, 
+			skip_sid=request.sid)
 		
-		logger.info("+ %s disconnect %d", self.namespace, SuricateCmdNS.connection_count)
+		self.suricate_server.remove_suricate(id)
 
 		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
 

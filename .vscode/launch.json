@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Suricate server",
+            "type": "python",
+            "request": "launch",
+            "program": "suricate_server.py",
+            "console": "integratedTerminal",
+            "cwd": "server"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
