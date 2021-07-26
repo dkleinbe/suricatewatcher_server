@@ -1,7 +1,11 @@
+from __future__ import annotations
 import logging
 import base64
 from flask import request
 from flask_socketio import Namespace, emit
+import typing
+if typing.TYPE_CHECKING:
+	from suricate_server import Server
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
@@ -11,7 +15,7 @@ class SuricateVideoStreamNS(Namespace):
 	
 	connection_count = 0
 
-	def __init__(self, namespace, suricate_server):
+	def __init__(self, namespace, suricate_server : Server):
 		logger.info("+ Init SuricateVideoStreamNS")
 		super(Namespace, self).__init__(namespace)
 		
@@ -38,7 +42,8 @@ class SuricateVideoStreamNS(Namespace):
 		self.frame_count += 1
 
 		logger.info("+ %s: Frame received: %d", self.namespace, self.frame_count)
-		room = frame['id']
+		room = self.suricate_server._suricates[frame['id']].room
+		#room = frame['id']
 		#
 		# encode and send frame to all watchers
 		#

@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "suricate_server.py",
             "console": "integratedTerminal",
-            "cwd": "server"
+            "cwd": "${workspaceFolder}/server"
         },
         {
             "name": "Python: Current File",

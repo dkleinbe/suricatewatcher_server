@@ -1,7 +1,11 @@
+from __future__ import annotations
 import logging
 from flask import request
-from flask_socketio import Namespace, emit
+from flask_socketio import Namespace, emit, rooms
 from json import JSONEncoder
+import typing
+if typing.TYPE_CHECKING:
+	from suricate_server import Server
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
@@ -14,7 +18,7 @@ class WatcherVideoCastNS(Namespace):
 	
 	connection_count = 0
 
-	def __init__(self, namespace, suricate_server):
+	def __init__(self, namespace, suricate_server : Server):
 
 		logger.info("+ Init WatcherVideoCastNS")
 
@@ -27,8 +31,6 @@ class WatcherVideoCastNS(Namespace):
 		
 		WatcherVideoCastNS.connection_count += 1
 		self.suricate_server.watchers_count = WatcherVideoCastNS.connection_count
-
-		suricate_sid = self.suricate_server.suricate_sid
 
 		logger.info("+ %s : connection: %d", self.namespace, WatcherVideoCastNS.connection_count)
 		#
@@ -47,14 +49,14 @@ class WatcherVideoCastNS(Namespace):
 		WatcherVideoCastNS.connection_count -= 1
 		self.suricate_server.watchers_count = WatcherVideoCastNS.connection_count
 
-		suricate_sid = self.suricate_server.suricate_sid
-
 		logger.info("+ %s disconnect: %d", self.namespace, WatcherVideoCastNS.connection_count)
 		#
 		# stop suricate video stream if this was the last connected watcher
 		#
-		if WatcherVideoCastNS.connection_count == 0:
-			emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
+		#if WatcherVideoCastNS.connection_count == 0:
+		#	emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
+
+		logger.debug('+ rooms: %s', rooms())
 		
 		# update debug data
 		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)

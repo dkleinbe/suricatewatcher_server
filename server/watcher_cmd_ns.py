@@ -1,8 +1,11 @@
+from __future__ import annotations
 import logging
 from flask import request
-from flask_socketio import Namespace, emit, join_room, leave_room, namespace
+from flask_socketio import Namespace, emit, join_room, leave_room, namespace, rooms
 from json import JSONEncoder, JSONDecoder
-
+import typing
+if typing.TYPE_CHECKING:
+	from suricate_server import Server
 logger = logging.getLogger('suricate_server.' + __name__)
 
 class WatcherCmdNS(Namespace):
@@ -14,7 +17,7 @@ class WatcherCmdNS(Namespace):
 	
 	connection_count = 0
 
-	def __init__(self, namespace, suricate_server):
+	def __init__(self, namespace, suricate_server : Server):
 
 		logger.info("+ Init WatcherCmdNS")
 
@@ -25,10 +28,17 @@ class WatcherCmdNS(Namespace):
 
 	def on_connect(self):
 		
+		logger.info("+ %s : connection [%s]: %d", self.namespace, request.sid, WatcherCmdNS.connection_count)
+		
 		WatcherCmdNS.connection_count += 1
 		self.suricate_server.watchers_count = WatcherCmdNS.connection_count
-	
+
 		logger.info("+ %s : connection [%s]: %d", self.namespace, request.sid, WatcherCmdNS.connection_count)
+		#
+		# register watcher
+		#
+		self.suricate_server.register_watcher(request.sid)
+
 		
 		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)
 			
@@ -41,11 +51,12 @@ class WatcherCmdNS(Namespace):
 		suricate_sid = self.suricate_server.suricate_sid
 
 		logger.info("+ %s disconnect: %d", self.namespace, WatcherCmdNS.connection_count)
+		print(rooms)
 		#
 		# stop suricate video stream if this was the last connected watcher
 		#
-		if WatcherCmdNS.connection_count == 0:
-			emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
+		#if WatcherCmdNS.connection_count == 0:
+		#	emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
 		
 		# update debug data
 		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
@@ -58,27 +69,13 @@ class WatcherCmdNS(Namespace):
 		watcher_sid = suricate['watcher_sid']
 
 		if (previous_suricate_id != 'NONE'):
-			# watcher was watching an other suricate, lets leave the room
-			logger.debug('+ removing watcher from room <%s>', previous_suricate_id)
-			leave_room(sid=watcher_sid, room=previous_suricate_id, namespace='/watcher_video_cast')
-		
+			self.suricate_server._suricates[previous_suricate_id].remove_watcher(watcher_sid)
+						
 		if (suricate_id == 'NONE'):
 			# Invalide suricate id
 			return
 
-		session_id = self.suricate_server._suricates[suricate_id].sid_cmd
-					
-		#
-		# add watcher to suricat room
-		#
-		logger.info('+ Entering room [%s]', suricate_id)
-		join_room(sid=watcher_sid, room=suricate_id, namespace='/watcher_video_cast')		
-		#
-		# start suricate video stream
-		#
-		logger.info("+ %s: starting suricate stream: %s", self.namespace, session_id)
-		emit('start_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=session_id)
-
+		self.suricate_server._suricates[suricate_id].add_watcher(watcher_sid)
 
 		# update debug data
 		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)

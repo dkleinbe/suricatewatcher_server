@@ -1,7 +1,11 @@
+from __future__ import annotations
 import logging
 import base64
 from flask import request
 from flask_socketio import Namespace, emit, namespace
+import typing
+if typing.TYPE_CHECKING:
+	from suricate_server import Server
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
@@ -11,7 +15,7 @@ class SuricateCmdNS(Namespace):
 	
 	connection_count = 0
 
-	def __init__(self, namespace, suricate_server):
+	def __init__(self, namespace, suricate_server : Server):
 		logger.info("+ Init SuricateCmdSuricateNS")
 		super(Namespace, self).__init__(namespace)
 		
@@ -26,14 +30,16 @@ class SuricateCmdNS(Namespace):
 		self.suricate_server.suricate_count = SuricateCmdNS.connection_count
 
 		logger.info("+ %s connect %d with sid: %s", self.namespace, SuricateCmdNS.connection_count, request.sid)
-		id = auth['id']
+		#id = auth['id']
+		id = request.sid
 		logger.info("+ Suricate id: " + str(id))
 
 		#
-		# Add suricate to server with session id
+		# Add suricate to server with cmd_session id
 		#
-		self.suricate_server.register_suricate(id)
+		self.suricate_server.register_suricate(request.sid)
 		
+		emit('suricate_id', { 'suricate_id' : id })
 		#
 		# tell to all watchers we have a new suricate to watch
 		#
@@ -51,7 +57,7 @@ class SuricateCmdNS(Namespace):
 
 		SuricateCmdNS.connection_count -= 1
 		self.suricate_server.suricate_count = SuricateCmdNS.connection_count
-		id = self.suricate_server.suricate_id(request.sid).id
+		id = self.suricate_server.suricate_id(request.sid).suricate_cmd_sid
 		#
 		# tell to all watchers  suricate has gone
 		#		
@@ -61,7 +67,7 @@ class SuricateCmdNS(Namespace):
 			broadcast=True, 
 			skip_sid=request.sid)
 		
-		self.suricate_server.remove_suricate(id)
+		self.suricate_server.unregister_suricate(id)
 
 		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
 
