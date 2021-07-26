@@ -1,0 +1,35 @@
+@startuml sequence digrame
+	actor Watcher1 	
+	participant Server
+    participant Suricate1
+    participant Camera
+	' Suricate connect to server
+	Suricate1 -[#cyan]> Server ++ : /suricate_cmd[connect]
+	Server -> Server : register suricate
+	Server -[#cyan]> Suricate1 -- : /suricate_cmd[suricate_id]
+    
+	Suricate1 -[#gold]> Server: /suricate_video_stream[connect] 
+	
+	' Watcher connnect to server
+	Watcher1 -[#darkviolet]> Server ++: /watcher_cmd[connect] 
+    Server -> Server : register watcher
+	return
+	Watcher1 -[#green]> Server : /watcher_video_cast[connect] 
+
+	' Watcher select suricate to watch
+	Watcher1 -[#darkviolet]> Server ++ : /watcher_cmd[select_suricate] 
+	Server -> Server : add watcher to suricate room
+    Server -[#cyan]> Suricate1 ++ : /suricate_cmd[start_stream]
+    Server --> Watcher1 --
+
+    ' Create camera
+	Suricate1 -> Camera ** : create
+	Suricate1 -> Camera : get_frame
+	Suricate1 -> Server : /suricate_video_stream[frame] [color=gold]
+	Server -> Watcher1 : watcher_video_cast[frame] [color=chartreuse2]
+	
+	Suricate1 -> Camera !! : delete
+    
+
+		
+@enduml
