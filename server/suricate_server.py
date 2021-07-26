@@ -50,7 +50,7 @@ class Suricate:
 		self.room = 'room_' + sid # create room name from sid
 		self.suricate_cmd_sid = sid
 		self.suricate_video_stream_sid = 'NONE'
-		self.watchers = {}
+		self.watchers = []
 
 	def add_watcher(self, watcher_sid):
 		#
@@ -59,8 +59,8 @@ class Suricate:
 		my_logger.info('+ Entering room [%s]', self.room)
 		join_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
 
-		# TODO: fix that with a watcher_id list !
-		#self.watchers[watcher_sid] = Watcher(watcher_sid, self.id)
+		# add watcher to watcher list
+		self.watchers.append(watcher_sid)
 
 		#
 		# start suricate video stream
@@ -71,15 +71,15 @@ class Suricate:
 	def remove_watcher(self, watcher_sid):
 		
 		# watcher was watching an other suricate, lets leave the room
-		my_logger.debug('+ removing watcher from room <%s>', self.id)
-		leave_room(sid=watcher_sid, room=self.id, namespace='/watcher_video_cast')
+		my_logger.debug('+ removing watcher from room <%s>', self.room)
+		leave_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
 
-		# TODO: fix that!
-		#del self.watchers[watcher_sid]
-		#
-		#if (len(self.watchers) <= 0):
+		# remove watcher from watcher list
+		self.watchers.remove(watcher_sid)
+		
+		if (len(self.watchers) <= 0):
 			# if no more watcher for this suricate stop video stream
-		#	emit('stop_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
+			emit('stop_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
 class Server:
 	def __init__(self):
@@ -121,7 +121,7 @@ class Server:
 		del self._suricates[id]
 
 	def suricate_id(self, sid) -> Suricate:
-		''' return index of suricate with sid_cmd == sid in _suricates dict '''
+		''' return Suricate with sid_cmd == sid in _suricates dict '''
 
 		# get index of suricate with sid_cmd == sid in _suricates dict '''
 		index = [ x.suricate_cmd_sid for x in list(self._suricates.values()) ].index(sid)
