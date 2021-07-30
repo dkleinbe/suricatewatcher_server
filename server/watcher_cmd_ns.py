@@ -5,7 +5,13 @@ from flask_socketio import Namespace, emit, join_room, leave_room, namespace, ro
 from json import JSONEncoder, JSONDecoder
 import typing
 if typing.TYPE_CHECKING:
-	from suricate_server import Server
+	from suricate_server import Server, SessionId
+
+
+# FIXME: find a better solution to avoid pylance reporting that sid is not a member of request
+def session_id() -> SessionId:
+	return request.sid # type: ignore
+
 logger = logging.getLogger('suricate_server.' + __name__)
 
 class WatcherCmdNS(Namespace):
@@ -28,19 +34,19 @@ class WatcherCmdNS(Namespace):
 
 	def on_connect(self):
 		
-		logger.info("+ %s : connection [%s]: %d", self.namespace, request.sid, WatcherCmdNS.connection_count)
+		logger.info("+ %s : connection [%s]: %d", self.namespace, session_id(), WatcherCmdNS.connection_count)
 		
 		WatcherCmdNS.connection_count += 1
 		self.suricate_server.watchers_count = WatcherCmdNS.connection_count
 
-		logger.info("+ %s : connection [%s]: %d", self.namespace, request.sid, WatcherCmdNS.connection_count)
+		logger.info("+ %s : connection [%s]: %d", self.namespace, session_id(), WatcherCmdNS.connection_count)
 		#
 		# register watcher
 		#
-		self.suricate_server.register_watcher(request.sid)
+		self.suricate_server.register_watcher(session_id())
 
 		
-		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)
+		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=session_id())
 			
 
 	def on_disconnect(self):
@@ -59,7 +65,7 @@ class WatcherCmdNS(Namespace):
 		#	emit('stop_video_stream', {'payload' : 'aze'}, namespace='/cmd_suricate', to=suricate_sid)
 		
 		# update debug data
-		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
+		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=session_id())
 
 	def on_suricate_selected(self, suricate):
 		
@@ -78,6 +84,6 @@ class WatcherCmdNS(Namespace):
 		self.suricate_server._suricates[suricate_id].add_watcher(watcher_sid)
 
 		# update debug data
-		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)
+		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=session_id())
 			
 		

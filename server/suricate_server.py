@@ -1,8 +1,10 @@
+from typing import List
 import logging
 import logging.config
 from os import name
+from typing import NewType
 
-from flask import Flask, render_template, session, Response, request
+from flask import Flask, render_template, session, Response, request 
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import base64
@@ -14,6 +16,8 @@ from suricate_cmd_ns import SuricateCmdNS
 from watcher_debug_ns import WatcherDebugNS
 from watcher_cmd_ns import WatcherCmdNS
 from watcher_video_cast_ns import WatcherVideoCastNS
+
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -28,31 +32,32 @@ connection_count = 0
 toto = 0
 img = ''
 
-class Watcher:
-	def __init__(self, id):
+SessionId = NewType('SessionId', str)
 
-		self.id = id
+class Watcher:
+	def __init__(self, id : SessionId):
+
+		self.id : SessionId = id
 		
-		self.watcher_cmd_sid = 'NONE'
-		self.watcher_video_cast_sid = 'NONE'
-		
-		self.watched_suricate_id = 'NONE'
+		self.watcher_cmd_sid        : SessionId = SessionId('NONE')
+		self.watcher_video_cast_sid : SessionId = SessionId('NONE')
+		self.watched_suricate_id    : SessionId = SessionId('NONE')
 	
 		
 class Suricate:
 	""" init a Suricat.
 
-		:param sid: The connection id of the suricate_cmd namespace.
+		:param sid: The session id of the suricate_cmd namespace.
 
 	"""
-	def __init__(self, sid : str) -> None:
+	def __init__(self, sid : SessionId) -> None:
 
-		self.room = 'room_' + sid # create room name from sid
-		self.suricate_cmd_sid = sid
-		self.suricate_video_stream_sid = 'NONE'
-		self.watchers = []
+		self.room                      : str = 'room_' + sid # create room name from sid
+		self.suricate_cmd_sid          : SessionId = sid
+		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
+		self.watchers                  : List[SessionId] = []
 
-	def add_watcher(self, watcher_sid):
+	def add_watcher(self, watcher_sid : SessionId):
 		#
 		# add watcher to suricat room
 		#
@@ -68,7 +73,7 @@ class Suricate:
 		my_logger.info("+ starting suricate stream: %s", self.suricate_cmd_sid)
 		emit('start_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
-	def remove_watcher(self, watcher_sid):
+	def remove_watcher(self, watcher_sid : SessionId):
 		
 		# watcher was watching an other suricate, lets leave the room
 		my_logger.debug('+ removing watcher from room <%s>', self.room)
@@ -83,12 +88,13 @@ class Suricate:
 
 class Server:
 	def __init__(self):
-		self._suricate_count = 0
-		self._watchers_count = 0
-		self._suricate_sid = 'NOT_SET'
-		self._suricates = {}
+		self._suricate_count : int = 0
+		self._watchers_count : int = 0
+		#self._suricate_sid : SessionId = SessionId('NOT_SET')
+		self._suricates: dict[SessionId, Suricate] = {}
 		self._suricate_rooms = {}
-		self._watchers = {}
+		self._watchers : dict[SessionId, Watcher] = {}
+		
 		
 		socketio.on_namespace(WatcherDebugNS('/debug', suricate_server=self))
 		socketio.on_namespace(SuricateVideoStreamNS('/suricate_video_stream', suricate_server=self))
@@ -100,27 +106,26 @@ class Server:
 
 		self._suricate_rooms[sid] = name
 
-	def register_watcher(self, id):
+	def register_watcher(self, id : SessionId):
 
 		watcher = Watcher(id)
-		
 		self._watchers[id] = watcher
 
-	def unregister_watcher(self, id):
+	def unregister_watcher(self, id : SessionId):
 
 		del self._watchers[id]
 
-	def register_suricate(self, sid):
+	def register_suricate(self, sid : SessionId):
 
 		suricate = Suricate(sid)
 		#suricate.sid_cmd = request.sid
 		self._suricates[sid] = suricate
 
-	def unregister_suricate(self, id):
+	def unregister_suricate(self, id : SessionId):
 
 		del self._suricates[id]
 
-	def suricate_id(self, sid) -> Suricate:
+	def suricate_id(self, sid : SessionId) -> Suricate:
 		''' return Suricate with sid_cmd == sid in _suricates dict '''
 
 		# get index of suricate with sid_cmd == sid in _suricates dict '''
@@ -129,12 +134,12 @@ class Server:
 		return list(self._suricates.values())[index]	
 
 	@property
-	def suricate_sid(self):
+	def suricate_sid(self) -> SessionId:
 		my_logger.info('+ Getting suricate sid: ' + str(self._suricate_sid))
 		return self._suricate_sid
 	
 	@suricate_sid.setter
-	def suricate_sid(self, sid):
+	def suricate_sid(self, sid : SessionId):
 		my_logger.info('+ Setting suricate sid: ' + str(sid))
 		self._suricate_sid = sid
 
@@ -154,7 +159,7 @@ class Server:
 		return self._watchers_count
 
 	@watchers_count.setter
-	def watchers_count(self, count):
+	def watchers_count(self, count : int):
 		my_logger.info('+ Setting watchers_count: ' + str(count))
 		self._watchers_count = count
 	

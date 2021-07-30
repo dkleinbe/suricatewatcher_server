@@ -5,7 +5,12 @@ from flask_socketio import Namespace, emit, rooms
 from json import JSONEncoder
 import typing
 if typing.TYPE_CHECKING:
-	from suricate_server import Server
+	from suricate_server import Server, SessionId
+
+
+# FIXME: find a better solution to avoid pylance reporting that sid is not a member of request
+def session_id() -> SessionId:
+	return request.sid # type: ignore
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
@@ -41,7 +46,7 @@ class WatcherVideoCastNS(Namespace):
 		##### emit('start_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=suricate_sid)
 
 		# update debug data
-		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=request.sid)
+		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=session_id())
 			
 
 	def on_disconnect(self):
@@ -59,6 +64,6 @@ class WatcherVideoCastNS(Namespace):
 		logger.debug('+ rooms: %s', rooms())
 		
 		# update debug data
-		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=request.sid)
+		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=session_id())
 
 		

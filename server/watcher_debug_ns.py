@@ -1,6 +1,7 @@
 import logging
 import base64
 from flask_socketio import Namespace, emit
+import typing
 
 logger = logging.getLogger('suricate_server.' + __name__)
 

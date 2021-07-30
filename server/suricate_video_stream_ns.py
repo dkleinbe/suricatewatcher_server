@@ -5,7 +5,12 @@ from flask import request
 from flask_socketio import Namespace, emit
 import typing
 if typing.TYPE_CHECKING:
-	from suricate_server import Server
+	from suricate_server import Server, SessionId
+
+
+# FIXME: find a better solution to avoid pylance reporting that sid is not a member of request
+def session_id() -> SessionId:
+	return request.sid # type: ignore
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
@@ -27,7 +32,7 @@ class SuricateVideoStreamNS(Namespace):
 		SuricateVideoStreamNS.connection_count += 1
 		self.suricate_server.suricate_count = SuricateVideoStreamNS.connection_count
 
-		logger.info("+ %s: connection [%s]: %d", self.namespace, request.sid, SuricateVideoStreamNS.connection_count)
+		logger.info("+ %s: connection [%s]: %d", self.namespace, session_id(), SuricateVideoStreamNS.connection_count)
 		
 		
 	def on_disconnect(self):
