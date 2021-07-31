@@ -2,7 +2,7 @@ from typing import List
 import logging
 import logging.config
 from os import name
-from typing import NewType
+from typing import NewType, Optional
 
 from flask import Flask, render_template, session, Response, request 
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -42,8 +42,31 @@ class Watcher:
 		self.watcher_cmd_sid        : SessionId = SessionId('NONE')
 		self.watcher_video_cast_sid : SessionId = SessionId('NONE')
 		self.watched_suricate_id    : SessionId = SessionId('NONE')
-	
+		self.watched_suricate       : Optional[Suricate] = None
+
 		
+	def watch_suricate(self, watcher_video_cast_sid : SessionId, suricate_sid : SessionId) -> None:
+
+		# if we are already watching a suricate, stop watching
+		if (self.watched_suricate != None) :
+			
+			self.stop_watching()
+
+		# Stop watching
+		if (suricate_sid == 'NONE'):
+			return
+
+		self.watcher_video_cast_sid = watcher_video_cast_sid
+		suricate = my_server._suricates[suricate_sid]
+		suricate.add_watcher(self.watcher_video_cast_sid)
+		self.watched_suricate = suricate
+	
+	def stop_watching(self) -> None :
+
+		if (self.watched_suricate != None):
+			self.watched_suricate.remove_watcher(self.watcher_video_cast_sid)
+		self.watched_suricate = None
+
 class Suricate:
 	""" init a Suricat.
 
@@ -75,7 +98,7 @@ class Suricate:
 
 	def remove_watcher(self, watcher_sid : SessionId):
 		
-		# watcher was watching an other suricate, lets leave the room
+		# lets leave the room
 		my_logger.debug('+ removing watcher from room <%s>', self.room)
 		leave_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
 
@@ -90,7 +113,6 @@ class Server:
 	def __init__(self):
 		self._suricate_count : int = 0
 		self._watchers_count : int = 0
-		#self._suricate_sid : SessionId = SessionId('NOT_SET')
 		self._suricates: dict[SessionId, Suricate] = {}
 		self._suricate_rooms = {}
 		self._watchers : dict[SessionId, Watcher] = {}
@@ -111,8 +133,9 @@ class Server:
 		watcher = Watcher(id)
 		self._watchers[id] = watcher
 
-	def unregister_watcher(self, id : SessionId):
+	def unregister_watcher(self, id : SessionId) -> None:
 
+		self._watchers[id].stop_watching()
 		del self._watchers[id]
 
 	def register_suricate(self, sid : SessionId):
@@ -132,16 +155,6 @@ class Server:
 		index = [ x.suricate_cmd_sid for x in list(self._suricates.values()) ].index(sid)
 
 		return list(self._suricates.values())[index]	
-
-	@property
-	def suricate_sid(self) -> SessionId:
-		my_logger.info('+ Getting suricate sid: ' + str(self._suricate_sid))
-		return self._suricate_sid
-	
-	@suricate_sid.setter
-	def suricate_sid(self, sid : SessionId):
-		my_logger.info('+ Setting suricate sid: ' + str(sid))
-		self._suricate_sid = sid
 
 	@property
 	def suricate_count(self):

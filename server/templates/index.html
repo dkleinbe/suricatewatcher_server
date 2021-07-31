@@ -38,7 +38,7 @@
 			socket_video.on('frame', function(msg, cb) {
 				$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
                 
-                $('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
+                //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
 
             });
 

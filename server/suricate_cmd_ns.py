@@ -29,13 +29,13 @@ class SuricateCmdNS(Namespace):
 
 	def on_connect(self, auth):
 		 
-		#We get a suricate cd 
+		# We get a suricate
 		
 		SuricateCmdNS.connection_count += 1
 		self.suricate_server.suricate_count = SuricateCmdNS.connection_count
 
 		logger.info("+ %s connect %d with sid: %s", self.namespace, SuricateCmdNS.connection_count, session_id()) 
-		#id = auth['id']
+		
 		id = session_id()
 		logger.info("+ Suricate id: " + str(id))
 
@@ -43,7 +43,10 @@ class SuricateCmdNS(Namespace):
 		# Add suricate to server with cmd_session id
 		#
 		self.suricate_server.register_suricate(session_id())
-
+		#
+		# give suricate the cmd id to use for exchanges
+		# TODO: could probably be done on client side
+		#
 		emit('suricate_id', { 'suricate_id' : id })
 		#
 		# tell to all watchers we have a new suricate to watch
