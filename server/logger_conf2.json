@@ -42,11 +42,7 @@
         "loggers": { },
         "root": {
             "handlers": ["console"],
-            "level": "DEBUG"
-        },
-		"suricate_server": {
-            "handlers": ["console"],
-            "level": "DEBUG"
+            "level": "INFO"
         }
     }
 }

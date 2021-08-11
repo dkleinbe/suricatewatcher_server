@@ -22,14 +22,11 @@ from watcher_video_cast_ns import WatcherVideoCastNS
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
-#logging.config.fileConfig('logger.conf', disable_existing_loggers=False)
 with open('logger_conf2.json') as json_file:
     conf = json.load(json_file)
 logging.config.dictConfig(conf['logging'])
 
 my_logger = logging.getLogger('suricate_server')
-#coloredlogs.install(level='DEBUG', logger=my_logger) # level_styles={ 'info' : { 'color' : 'red' } })
-#					field_styles={ 'name' : { 'color' : 'red'}})
 
 my_logger.info('Logger init done')
 my_logger.debug('Logger debug')
@@ -37,7 +34,7 @@ my_logger.warning('Logger warning')
 my_logger.error('Logger error')
 my_logger.critical('Logger critical')
 
-socketio = SocketIO(app, logger = True)
+socketio = SocketIO(app, logger = my_logger)
 
 connection_count = 0
 toto = 0
@@ -110,7 +107,7 @@ class Suricate:
 	def remove_watcher(self, watcher_sid : SessionId):
 		
 		# lets leave the room
-		my_logger.debug('+ removing watcher from room <%s>', self.room)
+		my_logger.info('+ removing watcher from room <%s>', self.room)
 		leave_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
 
 		# remove watcher from watcher list
@@ -164,22 +161,22 @@ class Server:
 
 	@property
 	def suricate_count(self):
-		my_logger.info('+ Getting suricate_count: ' + str(self._suricate_count))
+		my_logger.debug('+ Getting suricate_count: ' + str(self._suricate_count))
 		return self._suricate_count
 
 	@suricate_count.setter
 	def suricate_count(self, count):
-		my_logger.info('+ Setting suricate_count: ' + str(count))
+		my_logger.debug('+ Setting suricate_count: ' + str(count))
 		self._suricate_count = count
 
 	@property
 	def watchers_count(self):
-		my_logger.info('+ Getting watchers_count: ' + str(self._watchers_count))
+		my_logger.debug('+ Getting watchers_count: ' + str(self._watchers_count))
 		return self._watchers_count
 
 	@watchers_count.setter
 	def watchers_count(self, count : int):
-		my_logger.info('+ Setting watchers_count: ' + str(count))
+		my_logger.debug('+ Setting watchers_count: ' + str(count))
 		self._watchers_count = count
 	
 	def toJSON(self):
@@ -199,17 +196,12 @@ def debug():
 
 
 if __name__ != '__main__':
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    #gunicorn_logger = logging.getLogger('gunicorn.error')
+    #app.logger.handlers = gunicorn_logger.handlers
+    #app.logger.setLevel(gunicorn_logger.level)
+	my_logger.info("STARTING SERVER")
 
 if __name__ == '__main__':
-
-	#logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
-	logging.getLogger('suricate_server').setLevel(logging.DEBUG)
-	
-	#logging.getLogger('socketio').setLevel(logging.ERROR)
-	#logging.getLogger('engineio').setLevel(logging.ERROR)
 
 	app.logger.info("Launching server...")
 	
