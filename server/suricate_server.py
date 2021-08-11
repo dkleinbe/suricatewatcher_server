@@ -1,5 +1,5 @@
 from typing import List
-import logging
+import coloredlogs, logging
 import logging.config
 from os import name
 from typing import NewType, Optional
@@ -22,9 +22,20 @@ from watcher_video_cast_ns import WatcherVideoCastNS
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
-logging.config.fileConfig('logger.conf', disable_existing_loggers=False)
+#logging.config.fileConfig('logger.conf', disable_existing_loggers=False)
+with open('logger_conf2.json') as json_file:
+    conf = json.load(json_file)
+logging.config.dictConfig(conf['logging'])
+
 my_logger = logging.getLogger('suricate_server')
+#coloredlogs.install(level='DEBUG', logger=my_logger) # level_styles={ 'info' : { 'color' : 'red' } })
+#					field_styles={ 'name' : { 'color' : 'red'}})
+
 my_logger.info('Logger init done')
+my_logger.debug('Logger debug')
+my_logger.warning('Logger warning')
+my_logger.error('Logger error')
+my_logger.critical('Logger critical')
 
 socketio = SocketIO(app, logger = True)
 
@@ -114,7 +125,6 @@ class Server:
 		self._suricate_count : int = 0
 		self._watchers_count : int = 0
 		self._suricates: dict[SessionId, Suricate] = {}
-		self._suricate_rooms = {}
 		self._watchers : dict[SessionId, Watcher] = {}
 		
 		
@@ -123,10 +133,6 @@ class Server:
 		socketio.on_namespace(SuricateCmdNS('/suricate_cmd', suricate_server=self))
 		socketio.on_namespace(WatcherVideoCastNS('/watcher_video_cast', suricate_server=self))
 		socketio.on_namespace(WatcherCmdNS('/watcher_cmd', suricate_server=self))
-	
-	def create_room(self, sid, name):
-
-		self._suricate_rooms[sid] = name
 
 	def register_watcher(self, id : SessionId):
 

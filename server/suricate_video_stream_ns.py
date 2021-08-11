@@ -30,7 +30,6 @@ class SuricateVideoStreamNS(Namespace):
 	def on_connect(self):
 		
 		SuricateVideoStreamNS.connection_count += 1
-		self.suricate_server.suricate_count = SuricateVideoStreamNS.connection_count
 
 		logger.info("+ %s: connection [%s]: %d", self.namespace, session_id(), SuricateVideoStreamNS.connection_count)
 		
@@ -38,7 +37,6 @@ class SuricateVideoStreamNS(Namespace):
 	def on_disconnect(self):
 
 		SuricateVideoStreamNS.connection_count -= 1
-		self.suricate_server.suricate_count = SuricateVideoStreamNS.connection_count
 
 		logger.info("+ %s: disconnect: %d", self.namespace, SuricateVideoStreamNS.connection_count)
 
