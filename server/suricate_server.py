@@ -185,10 +185,14 @@ class Server:
 
 my_server = Server()
 
-
+ 
 @app.route('/')
 def index():
 	return render_template('index.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
+
+@app.route('/joystick')
+def joystick():
+	return render_template('dual-joysticks.html', async_mode=socketio.async_mode, suricate_server=my_server)
 
 @app.route('/debug')
 def debug():
