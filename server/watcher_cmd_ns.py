@@ -74,5 +74,29 @@ class WatcherCmdNS(Namespace):
 
 		# update debug data
 		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=session_id())
+
+	def on_joystick_state(self, data):
+		"""
+		called when joystick starts and ends
+		"""
+		state_data = data['data']
+		id = data['joystick_id']
+		evt = data['evt']
+		logger.info("+ joystick[%s] evt type: [%s] position: %s", id, evt['type'], state_data['position'])
+
+		if evt['type'] == 'start':
+			self.suricate_server._watchers[session_id()].start_cam_ctrl(state_data)
+		else:
+			self.suricate_server._watchers[session_id()].stop_cam_ctrl(state_data)
+
+	def on_joystick_move(self, data):
+		""" 
+		called when joystick moves
+		"""
+		move_data = data['data']
+		id = data['joystick_id']
+		logger.info("+ joystick[%s] moved force: %.2f position %s", id, move_data['force'], move_data['position'])
+
+		self.suricate_server._watchers[session_id()].move_cam(data)
 			
 		

@@ -2,40 +2,41 @@
 
 class Server {
 
-    register_suricate(suricate_id)
-    unregister_suricate(suricate_id)
-    register_watcher(watcher_id)
-    unregister_watcher(watcher_id)
-    add_watcher_to_suricate(suricate_id, watcher_id)
-    remove_watcher_from_suricate(suricate_id, watcher_id)
+  register_suricate(suricate_id)
+  unregister_suricate(suricate_id)
+  register_watcher(watcher_id)
+  unregister_watcher(watcher_id)
+  add_watcher_to_suricate(suricate_id, watcher_id)
+  remove_watcher_from_suricate(suricate_id, watcher_id)
 }
 
-  class Suricate {
+class Suricate {
 
-    id
-    suricate_video_stream_sid
-    suricate_cmd_sid
-    
-    add_watcher(watcher_id)
-    remove_watcher(watcher_id)
+  id
+  suricate_video_stream_sid
+  suricate_cmd_sid
+  
+  add_watcher(watcher_id)
+  remove_watcher(watcher_id)
 
 }
 
-  class Watcher {
+class Watcher {
 
-    id
-    watcher_cmd_sid
-    watcher_video_cast_sid
-    watched_suricate_id
+  id
+  watcher_cmd_sid
+  watcher_video_cast_sid
+  watched_suricate
 
-    watch_suricate(suricate_id)
-    unwatch_suricate()
+  watch_suricate(suricate_id)
+  unwatch_suricate()
 
 }
 
 Server o-- Suricate
 Server o-- Watcher
-Watcher "watched_suricate_id" --> Suricate
+Watcher "watched_suricate" --> Suricate
 Suricate o-- Watcher
+Suricate --> CamController
 
 @enduml
