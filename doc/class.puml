@@ -36,6 +36,7 @@ class Watcher {
 Server o-- Suricate
 Server o-- Watcher
 Watcher "watched_suricate" --> Suricate
+Watcher "server" --> Server
 Suricate o-- Watcher
 Suricate --> CamController
 

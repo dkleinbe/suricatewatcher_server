@@ -45,7 +45,7 @@ class WatcherCmdNS(Namespace):
 		#
 		self.suricate_server.register_watcher(session_id())
 
-		
+		# FIXME : will need to deal with cicular ref in toJSON
 		emit('update', self.suricate_server.toJSON(), namespace='/debug', broadcast=True, skip_sid=session_id())
 			
 

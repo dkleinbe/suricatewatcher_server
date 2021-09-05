@@ -11,6 +11,9 @@ import base64
 import time
 import json
 
+from my_types import SessionId
+from suricate import Suricate
+from watcher import Watcher
 from suricate_video_stream_ns import SuricateVideoStreamNS
 from suricate_cmd_ns import SuricateCmdNS
 from watcher_debug_ns import WatcherDebugNS
@@ -38,128 +41,6 @@ socketio = SocketIO(app) #, logger = my_logger)
 
 
 connection_count = 0
-toto = 0
-img = ''
-
-SessionId = NewType('SessionId', str)
-
-class Watcher:
-	def __init__(self, id : SessionId):
-
-		self.id : SessionId = id
-		
-		self.watcher_cmd_sid        : SessionId = SessionId('NONE')
-		self.watcher_video_cast_sid : SessionId = SessionId('NONE')
-		self.watched_suricate_id    : SessionId = SessionId('NONE')
-		self.watched_suricate       : Optional[Suricate] = None
-
-		
-	def watch_suricate(self, watcher_video_cast_sid : SessionId, suricate_sid : SessionId) -> None:
-
-		# if we are already watching a suricate, stop watching
-		if (self.watched_suricate != None) :
-			
-			self.stop_watching()
-
-		# Stop watching
-		if (suricate_sid == 'NONE'):
-			return
-
-		self.watcher_video_cast_sid = watcher_video_cast_sid
-		suricate = my_server._suricates[suricate_sid]
-		suricate.add_watcher(self.watcher_video_cast_sid)
-		self.watched_suricate = suricate
-	
-	def stop_watching(self) -> None :
-
-		if (self.watched_suricate != None):
-			self.watched_suricate.remove_watcher(self.watcher_video_cast_sid)
-		self.watched_suricate = None
-
-	def start_cam_ctrl(self, data):
-
-		my_logger.info("+ Watcher [%s] start cmd ctrl", self.id)
-		if (self.watched_suricate != None):
-			self.watched_suricate.start_cam_ctrl(data)
-		else:
-			my_logger.error('- No watcher suricate')	
-
-	def stop_cam_ctrl(self, data):
-
-		my_logger.info("+ Watcher [%s] end cmd ctrl", self.id)		
-		if (self.watched_suricate != None):
-			self.watched_suricate.stop_cam_ctrl(data)
-		else:
-			my_logger.error('- No watcher suricate')	
-
-	def move_cam(self, data):
-
-		my_logger.info("+ Watcher [%s] move cam", self.id)		
-		if (self.watched_suricate != None):
-			self.watched_suricate.move_cam(data)
-		else:
-			my_logger.error('- No watcher suricate')
-
-class Suricate:
-	""" init a Suricat.
-
-		:param sid: The session id of the suricate_cmd namespace.
-
-	"""
-	def __init__(self, sid : SessionId) -> None:
-
-		self.id : SessionId = sid
-		self.room                      : str = 'room_' + sid # create room name from sid
-		self.suricate_cmd_sid          : SessionId = sid
-		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
-		self.watchers                  : List[SessionId] = []
-
-	def add_watcher(self, watcher_sid : SessionId):
-		#
-		# add watcher to suricat room
-		#
-		my_logger.info('+ Entering room [%s]', self.room)
-		join_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
-
-		# add watcher to watcher list
-		self.watchers.append(watcher_sid)
-
-		#
-		# start suricate video stream
-		#
-		if len(self.watchers) == 1 : 
-			my_logger.info("+ starting suricate stream: %s", self.suricate_cmd_sid)
-			emit('start_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
-
-	def remove_watcher(self, watcher_sid : SessionId):
-		
-		# lets leave the room
-		my_logger.info('+ removing watcher from room <%s>', self.room)
-		leave_room(sid=watcher_sid, room=self.room, namespace='/watcher_video_cast')
-
-		# remove watcher from watcher list
-		self.watchers.remove(watcher_sid)
-		
-		if (len(self.watchers) <= 0):
-			# if no more watcher for this suricate stop video stream
-			emit('stop_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
-	
-	def start_cam_ctrl(self, data):
-
-		my_logger.info("+ Suricate [%s] start cmd ctrl", self.id)
-		emit('start_cam_ctrl', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
-	
-	def stop_cam_ctrl(self, data):
-
-		my_logger.info("+ Suricate [%s] start cmd ctrl", self.id)
-		emit('stop_cam_ctrl', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
-	
-	def move_cam(self, data):
-
-		my_logger.info("+ Suricate [%s] start move cam", self.id)
-		emit('move_cam', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
-
-
 
 class Server:
 	def __init__(self):
@@ -177,7 +58,7 @@ class Server:
 
 	def register_watcher(self, sid : SessionId):
 
-		watcher = Watcher(sid)
+		watcher = Watcher(id=sid, suricate_server=self)
 		self._watchers[sid] = watcher
 
 	def unregister_watcher(self, id : SessionId) -> None:
@@ -224,8 +105,11 @@ class Server:
 		self._watchers_count = count
 	
 	def toJSON(self):
-		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
+		# FIXME : Deal with circular reference
+		#return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+		return "TO FIXE"
+		
+		
 
 my_server = Server()
 
