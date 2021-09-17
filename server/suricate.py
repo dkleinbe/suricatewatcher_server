@@ -1,4 +1,5 @@
 import logging
+
 from typing import List
 from  my_types import SessionId
 from flask_socketio import join_room, leave_room, emit
@@ -13,11 +14,12 @@ class Suricate:
 	"""
 	def __init__(self, sid : SessionId) -> None:
 
-		self.id : SessionId = sid
+		self.id                        : SessionId = sid
 		self.room                      : str = 'room_' + sid # create room name from sid
 		self.suricate_cmd_sid          : SessionId = sid
 		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
 		self.watchers                  : List[SessionId] = []
+		self._is_cam_in_use              : bool = False
 
 	def add_watcher(self, watcher_sid : SessionId):
 		#
@@ -51,16 +53,28 @@ class Suricate:
 	
 	def start_cam_ctrl(self, data):
 
-		logger.info("+ Suricate [%s] start cmd ctrl", self.id)
+		logger.debug("+ Suricate [%s] start cmd ctrl", self.id)
+		self.is_cam_in_use = True
 		emit('start_cam_ctrl', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 	
 	def stop_cam_ctrl(self, data):
 
-		logger.info("+ Suricate [%s] start cmd ctrl", self.id)
+		logger.debug("+ Suricate [%s] start cmd ctrl", self.id)
+		self.is_cam_in_use = False
 		emit('stop_cam_ctrl', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 	
 	def move_cam(self, data):
 
-		logger.info("+ Suricate [%s] start move cam", self.id)
+		logger.debug("+ Suricate [%s] start move cam", self.id)
+		
 		emit('move_cam', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
+	@property
+	def is_cam_in_use(self) -> bool:
+		logger.debug('+ Getting is_cam_in_use: ' + str(self._is_cam_in_use))
+		return self._is_cam_in_use
+
+	@is_cam_in_use.setter
+	def is_cam_in_use(self, value : bool):
+		logger.debug('+ Setting is_cam_in_use: ' + str(value))
+		self._is_cam_in_use = value

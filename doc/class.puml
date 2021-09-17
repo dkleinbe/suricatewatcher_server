@@ -10,6 +10,10 @@ class Server {
   remove_watcher_from_suricate(suricate_id, watcher_id)
 }
 
+class WatcherCmdNS {
+
+}
+
 class Suricate {
 
   id
@@ -33,11 +37,41 @@ class Watcher {
 
 }
 
+class CamController {
+  states
+  transitions
+}
+
+class MotionController {
+
+}
+
+class Machine {
+
+}
+
+class MotionControllerSM {
+
+}
+
 Server o-- Suricate
 Server o-- Watcher
+Server --> WatcherCmdNS
+
+
 Watcher "watched_suricate" --> Suricate
 Watcher "server" --> Server
+Watcher --> CamController
+Watcher --> MotionController
+
 Suricate o-- Watcher
-Suricate --> CamController
+
+
+
+
+CamController --> Machine
+CamController --> Suricate
+
+MotionController --> Machine
 
 @enduml

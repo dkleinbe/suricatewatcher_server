@@ -15,9 +15,11 @@
             socket_debug.on('connect', function(msg) {
                 
                 //$("#watcher_value").text('[' + msg._nb_watchers + ']');
+                /*
                 var aze = JSON.parse(msg)
                 $("#watcher_value").text('[' + aze._watchers_count + ']');
                 $("#suricate_value").text('[' + aze._suricate_count + ']');
+                */
             });
 
             socket_debug.on('update', function(msg) {

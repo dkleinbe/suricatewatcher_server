@@ -1,0 +1,12 @@
+@startuml "cam controller state"
+
+
+[*] --> Init
+Init : Initial state
+CamCtrl : Controling camera
+Init --> CamCtrl : start_cam_ctrl [is_cam_free == true]
+CamCtrl --> CamCtrl : cam_move
+CamCtrl --> Init : stop_cam_ctrl
+
+
+@enduml

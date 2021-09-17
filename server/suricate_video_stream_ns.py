@@ -1,4 +1,5 @@
 from __future__ import annotations
+from time import time_ns
 import logging
 import base64
 from flask import request
@@ -44,16 +45,20 @@ class SuricateVideoStreamNS(Namespace):
 		""" Reiceve frame from suricate and broadcast to all watcher """
 		self.frame_count += 1
 
-		logger.info("+ %s: Frame received: %d", self.namespace, self.frame_count)
+		logger.debug("+ %s: Frame received: %d", self.namespace, self.frame_count)
 		room = self.suricate_server._suricates[frame['id']].room
 		#room = frame['id']
 		#
 		# encode and send frame to all watchers
 		#
-		emit('frame', {'frame' : base64.b64encode(frame['frame']).decode("utf-8"), 'frame_count': self.frame_count }, 
+		#emit('frame', {'frame' : base64.b64encode(frame['frame']).decode("utf-8"), 'frame_count': self.frame_count }, 
+		#	namespace='/watcher_video_cast', to=room, include_self=False)
+		time = time_ns()
+		logger.debug("+ frame transport from suricate: %d", (time - frame['time'])/ 1000000)
+		emit('frame', {'frame' : frame['frame'], 'frame_count': self.frame_count, 'time' : frame['time'] }, 
 			namespace='/watcher_video_cast', to=room, include_self=False)
-		
-		logger.info("+ %s: Frame sent to room: [%s]", self.namespace, room)
+
+		logger.debug("+ %s: Frame sent to room: [%s]", self.namespace, room)
 
 
 		
