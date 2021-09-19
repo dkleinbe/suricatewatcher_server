@@ -4,7 +4,7 @@ import logging.config
 from os import name
 from typing import NewType, Optional
 
-from flask import Flask, render_template, session, Response, request 
+from flask import Flask, render_template, session, request 
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import base64

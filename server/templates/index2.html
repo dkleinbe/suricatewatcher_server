@@ -101,9 +101,14 @@
                     //$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
                     //var dt = new Date();
                     //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html() + "TRANSPORT TIME : " + (dt.getTime() - (msg.time / 1000000)));
-                    jmuxer.feed({
-                            video: new Uint8Array(msg.frame)
-                        });	
+                    //console.log('visibilite: ' + document.visibilityState);
+                    if (document.visibilityState == "visible")
+                        
+                        jmuxer.feed({
+                                video: new Uint8Array(msg.frame)
+                            });	
+                    
+                        
                     //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
 
                 });
@@ -211,8 +216,10 @@
         <script>
             var joystickL = nipplejs.create({
                 zone: document.getElementById('left'),
-                mode: 'dynamic',
+                mode: 'semi',
                 position: { left: '20%', top: '50%' },
+                shape: 'square',
+                restJoystick: false,
                 color: 'green',
                 size: 200
             });

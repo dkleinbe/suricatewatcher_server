@@ -35,6 +35,7 @@ class Watcher:
 			return
 
 		self.watcher_video_cast_sid = watcher_video_cast_sid
+		# TODO: check if we have a valid suricate_sid: do self.suricate_server._suricates[suricate_sid] exist?
 		suricate = self.suricate_server._suricates[suricate_sid]
 		suricate.add_watcher(self.watcher_video_cast_sid)
 		self.watched_suricate = suricate
@@ -62,10 +63,10 @@ class Watcher:
 			logger.error('- No watcher suricate')	
 
 	def move_cam(self, data):
-
-		logger.debug("+ Watcher [%s] move cam", self.id)		
+		vector = data['data']['vector']
+		logger.info("+ Watcher [%s] move cam x: %.4f y: %.4f", self.id, vector['x'], vector['y'])		
 		if (self.watched_suricate != None):
-			self.cam_controler.move_cam(data)
+			self.cam_controler.move_cam(vector)
 		else:
 			logger.error('- No watcher suricate')
 

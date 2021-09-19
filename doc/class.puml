@@ -11,7 +11,8 @@ class Server {
 }
 
 class WatcherCmdNS {
-
+  on_joystick_state(data)
+  on_joystick_move(data)
 }
 
 class Suricate {
@@ -26,7 +27,6 @@ class Suricate {
 }
 
 class Watcher {
-
   id
   watcher_cmd_sid
   watcher_video_cast_sid
@@ -35,6 +35,9 @@ class Watcher {
   watch_suricate(suricate_id)
   unwatch_suricate()
 
+  start_cam_ctrl(sate_data)
+  stop_cam_ctrl(sate_data)
+  move_cam(data)
 }
 
 class CamController {
@@ -42,17 +45,12 @@ class CamController {
   transitions
 }
 
-class MotionController {
 
-}
 
 class Machine {
 
 }
 
-class MotionControllerSM {
-
-}
 
 Server o-- Suricate
 Server o-- Watcher
@@ -62,16 +60,14 @@ Server --> WatcherCmdNS
 Watcher "watched_suricate" --> Suricate
 Watcher "server" --> Server
 Watcher --> CamController
-Watcher --> MotionController
+
 
 Suricate o-- Watcher
 
-
-
+WatcherCmdNS --> Server
 
 CamController --> Machine
 CamController --> Suricate
 
-MotionController --> Machine
 
 @enduml

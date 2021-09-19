@@ -67,7 +67,7 @@ class Suricate:
 
 		logger.debug("+ Suricate [%s] start move cam", self.id)
 		
-		emit('move_cam', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
+		emit('move_cam', data, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
 	@property
 	def is_cam_in_use(self) -> bool:
