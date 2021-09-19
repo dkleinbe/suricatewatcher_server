@@ -144,12 +144,16 @@ my_server = Server()
 
  
 @app.route('/')
-def index2():
+def index():
 	return render_template('index.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
 
 @app.route('/index2')
-def index():
+def index2():
 	return render_template('index2.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
+
+@app.route('/index3')
+def index3():
+	return render_template('index3.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
 
 @app.route('/joystick')
 def joystick():
