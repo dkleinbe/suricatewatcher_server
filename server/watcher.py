@@ -47,25 +47,26 @@ class Watcher:
 		self.watched_suricate = None
 
 	def start_cam_ctrl(self, data):
-
-		logger.info("+ Watcher [%s] start cmd ctrl", self.id)
+		
 		if (self.watched_suricate != None):
+			logger.info("+ Watcher [%s] start cmd ctrl", self.id)
 			self.cam_controler.start_cam_ctrl(self.watched_suricate)
 		else:
 			logger.error('- No watcher suricate')	
 
 	def stop_cam_ctrl(self, data):
 
-		logger.debug("+ Watcher [%s] end cmd ctrl", self.id)		
 		if (self.watched_suricate != None):
+			logger.debug("+ Watcher [%s] end cmd ctrl", self.id)
 			self.cam_controler.stop_cam_ctrl(data)
 		else:
 			logger.error('- No watcher suricate')	
 
 	def move_cam(self, data):
 		vector = data['data']['vector']
-		logger.info("+ Watcher [%s] move cam x: %.4f y: %.4f", self.id, vector['x'], vector['y'])		
+				
 		if (self.watched_suricate != None):
+			logger.info("+ Watcher [%s] move cam x: %.4f y: %.4f", self.id, vector['x'], vector['y'])
 			self.cam_controler.move_cam(vector)
 		else:
 			logger.error('- No watcher suricate')

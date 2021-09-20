@@ -19,7 +19,7 @@ class Suricate:
 		self.suricate_cmd_sid          : SessionId = sid
 		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
 		self.watchers                  : List[SessionId] = []
-		self._is_cam_in_use              : bool = False
+		self._is_cam_in_use            : bool = False
 
 	def add_watcher(self, watcher_sid : SessionId):
 		#

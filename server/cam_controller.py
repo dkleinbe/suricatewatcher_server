@@ -10,15 +10,15 @@ class CamController(object):
 
     # The states
     states=[
-        State(name='init', ignore_invalid_triggers=True),
-        State(name='cam_ctrl', on_enter='send_move_cam')
+        State(name='init', ignore_invalid_triggers=True), # , ignore_invalid_triggers=True
+        State(name='cam_ctrl')
         ]
     # And some transitions between states. We're lazy, so we'll leave out
     # the inverse phase transitions (freezing, condensation, etc.).
     transitions = [
         { 'trigger': 'start_cam_ctrl', 'source': 'init', 'dest': 'cam_ctrl', 'conditions': 'is_cam_free', 'after': 'send_start_cam_ctr'},
         { 'trigger': 'stop_cam_ctrl', 'source': 'cam_ctrl', 'dest': 'init', 'after': 'send_stop_cam_ctr'},
-        { 'trigger': 'move_cam', 'source': 'cam_ctrl', 'dest': 'cam_ctrl' },
+        { 'trigger': 'move_cam', 'source': 'cam_ctrl', 'dest': 'cam_ctrl', 'after': 'send_move_cam' },
     ]
 
     def __init__(self) -> None:
