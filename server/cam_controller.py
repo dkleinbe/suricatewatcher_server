@@ -1,9 +1,9 @@
 from my_types import SessionId
-from suricate import Suricate
 from transitions import Machine, State
-from typing import Optional
 
-
+import typing
+if typing.TYPE_CHECKING:
+    from suricate import Suricate
 
 
 class CamController(object):
@@ -16,34 +16,36 @@ class CamController(object):
     # And some transitions between states. We're lazy, so we'll leave out
     # the inverse phase transitions (freezing, condensation, etc.).
     transitions = [
-        { 'trigger': 'start_cam_ctrl', 'source': 'init', 'dest': 'cam_ctrl', 'conditions': 'is_cam_free', 'after': 'send_start_cam_ctr'},
-        { 'trigger': 'stop_cam_ctrl', 'source': 'cam_ctrl', 'dest': 'init', 'after': 'send_stop_cam_ctr'},
-        { 'trigger': 'move_cam', 'source': 'cam_ctrl', 'dest': 'cam_ctrl', 'after': 'send_move_cam' },
+        { 'trigger': 'evt_start_cam_ctrl', 'source': 'init', 'dest': 'cam_ctrl', 'conditions': 'is_cam_free', 'after': 'start_cam_ctr'},
+        { 'trigger': 'evt_stop_cam_ctrl', 'source': 'cam_ctrl', 'dest': 'init', 'after': 'stop_cam_ctr'},
+        { 'trigger': 'evt_move_cam', 'source': 'cam_ctrl', 'dest': 'cam_ctrl', 'after': 'move_cam' },
     ]
 
-    def __init__(self) -> None:
+    def __init__(self, suricate) -> None:
         super().__init__()
 
-        self.suricate : Optional[Suricate] = None
-
+        self.suricate     : Suricate = suricate
+        self._is_cam_free  : bool = True
         self.sm = Machine(
             model=self, 
             states=CamController.states, 
             transitions=CamController.transitions, 
             initial='init')
     
-    def is_cam_free(self, suricate : Suricate) -> bool:
-        self.suricate = suricate
-        return not suricate.is_cam_in_use
+    def is_cam_free(self) -> bool:
+        
+        return  self._is_cam_free
 
-    def send_start_cam_ctr(self, data):
+    def start_cam_ctr(self):
         if self.suricate is not None:
-            self.suricate.start_cam_ctrl(data)
+            self._is_cam_free = False
+            self.suricate.do_start_cam_ctrl()
 
-    def send_stop_cam_ctr(self, data):
+    def stop_cam_ctr(self):
         if self.suricate is not None:
-            self.suricate.stop_cam_ctrl(data)
+            self._is_cam_free = True
+            self.suricate.do_stop_cam_ctrl()
 
-    def send_move_cam(self, data):
+    def move_cam(self, data):
         if self.suricate is not None:
-            self.suricate.move_cam(data)
+            self.suricate.do_move_cam(data)

@@ -1,0 +1,25 @@
+@startuml sequence digrame
+	actor Watcher1 	
+	participant Watcher_cmd_ns #darkviolet
+    participant Watcher
+    participant Suricate
+	participant Cam_controller
+	participant FSM_cam_ctr
+	participant Suricate1 #cyan
+	' Suricate connect to server
+	Watcher1 -[#darkviolet]> Watcher_cmd_ns ++ : /watcher_cmd[joystick_state]
+	Watcher_cmd_ns -> Watcher : start_cam_ctrl
+	Watcher -> Suricate : start_cam_ctrl
+	Suricate -> Cam_controller : evt_start_cam_ctrl
+	Cam_controller -> FSM_cam_ctr : evt_start_cam_ctrl
+	FSM_cam_ctr -> Cam_controller : start_cam_ctrl
+	Cam_controller -> Suricate : do_start_cam_ctrl
+	Suricate -[#cyan]> Suricate1 : /suricate_cmd[start_cam_ctrl]
+	return
+  
+	
+
+    
+
+		
+@enduml

@@ -1,7 +1,6 @@
 from __future__ import annotations
 import logging
 import typing
-from cam_controller import CamController
 
 from typing import Optional
 
@@ -21,7 +20,6 @@ class Watcher:
 		self.watcher_video_cast_sid : SessionId = SessionId('NONE')
 		self.watched_suricate_id    : SessionId = SessionId('NONE')
 		self.watched_suricate       : Optional[Suricate] = None
-		self.cam_controler          : CamController = CamController()
 		
 	def watch_suricate(self, watcher_video_cast_sid : SessionId, suricate_sid : SessionId) -> None:
 
@@ -50,7 +48,7 @@ class Watcher:
 		
 		if (self.watched_suricate != None):
 			logger.info("+ Watcher [%s] start cmd ctrl", self.id)
-			self.cam_controler.start_cam_ctrl(self.watched_suricate)
+			self.watched_suricate.start_cam_ctrl()
 		else:
 			logger.error('- No watcher suricate')	
 
@@ -58,7 +56,7 @@ class Watcher:
 
 		if (self.watched_suricate != None):
 			logger.debug("+ Watcher [%s] end cmd ctrl", self.id)
-			self.cam_controler.stop_cam_ctrl(data)
+			self.watched_suricate.stop_cam_ctrl()
 		else:
 			logger.error('- No watcher suricate')	
 
@@ -67,7 +65,7 @@ class Watcher:
 				
 		if (self.watched_suricate != None):
 			logger.info("+ Watcher [%s] move cam x: %.4f y: %.4f", self.id, vector['x'], vector['y'])
-			self.cam_controler.move_cam(vector)
+			self.watched_suricate.move_cam(vector)
 		else:
 			logger.error('- No watcher suricate')
 
