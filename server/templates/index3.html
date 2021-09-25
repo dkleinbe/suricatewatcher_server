@@ -23,7 +23,7 @@
                 float: left;
                 width: 50%;
                 min-height: 100vh;
-                background: rgba(0, 255, 0, 0.1);
+                background: rgba(0, 255, 0, 0.0);
             }
 
             #right {
@@ -33,7 +33,7 @@
                 float: right;
                 width: 50%;
                 min-height: 100vh;
-                background: rgba(0, 0, 255, 0.1);
+                background: rgba(0, 0, 255, 0.0);
             }
             #streamstage{
                 position: fixed;
@@ -215,9 +215,9 @@
         <script>
             var joystickL = nipplejs.create({
                 zone: document.getElementById('left'),
-                mode: 'semi',
+                mode: 'dynamic',
                 position: { left: '20%', top: '50%' },
-                shape: 'square',
+                shape: 'circle',
                 restJoystick: false,
                 color: 'green',
                 size: 200

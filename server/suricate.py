@@ -20,7 +20,7 @@ class Suricate:
 		self.suricate_cmd_sid          : SessionId = sid
 		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
 		self.watchers                  : List[SessionId] = []
-		self.cam_controler             : CamController = CamController(self)
+		
 		
 
 	def add_watcher(self, watcher_sid : SessionId):
@@ -53,21 +53,6 @@ class Suricate:
 			# if no more watcher for this suricate stop video stream
 			emit('stop_video_stream', {'payload' : 'aze'}, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
-	def start_cam_ctrl(self):
-		
-		logger.info("+ Suricate [%s] start cmd ctrl", self.id)
-		self.cam_controler.evt_start_cam_ctrl()
-
-	def stop_cam_ctrl(self):
-
-		logger.debug("+ Suricate [%s] end cmd ctrl", self.id)
-		self.cam_controler.evt_stop_cam_ctrl()
-
-	def move_cam(self, vector):
-		
-		logger.info("+ Suricate [%s] move cam x: %.4f y: %.4f", self.id, vector['x'], vector['y'])
-		self.cam_controler.evt_move_cam(vector)
-		 
 	def do_start_cam_ctrl(self):
 
 		logger.debug("+ Suricate [%s] start cmd ctrl", self.id)

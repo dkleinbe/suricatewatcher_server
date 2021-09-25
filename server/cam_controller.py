@@ -11,7 +11,7 @@ class CamController(object):
     # The states
     states=[
         State(name='init', ignore_invalid_triggers=True), # , ignore_invalid_triggers=True
-        State(name='cam_ctrl')
+        State(name='cam_ctrl', ignore_invalid_triggers=True)
         ]
     # And some transitions between states. We're lazy, so we'll leave out
     # the inverse phase transitions (freezing, condensation, etc.).
@@ -21,11 +21,13 @@ class CamController(object):
         { 'trigger': 'evt_move_cam', 'source': 'cam_ctrl', 'dest': 'cam_ctrl', 'after': 'move_cam' },
     ]
 
+    _is_cam_free : bool = True
+
     def __init__(self, suricate) -> None:
         super().__init__()
 
         self.suricate     : Suricate = suricate
-        self._is_cam_free  : bool = True
+        CamController._is_cam_free  : bool = True
         self.sm = Machine(
             model=self, 
             states=CamController.states, 
@@ -34,16 +36,16 @@ class CamController(object):
     
     def is_cam_free(self) -> bool:
         
-        return  self._is_cam_free
+        return  CamController._is_cam_free
 
     def start_cam_ctr(self):
         if self.suricate is not None:
-            self._is_cam_free = False
+            CamController._is_cam_free = False
             self.suricate.do_start_cam_ctrl()
 
     def stop_cam_ctr(self):
         if self.suricate is not None:
-            self._is_cam_free = True
+            CamController._is_cam_free = True
             self.suricate.do_stop_cam_ctrl()
 
     def move_cam(self, data):

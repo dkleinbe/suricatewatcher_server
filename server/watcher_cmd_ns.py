@@ -82,12 +82,13 @@ class WatcherCmdNS(Namespace):
 		state_data = data['data']
 		id = data['joystick_id']
 		evt = data['evt']
-		logger.debug("+ joystick[%s] evt type: [%s] position: %s", id, evt['type'], state_data['position'])
+		logger.info("+ joystick[%s] evt type: [%s] position: %s", id, evt['type'], state_data['position'])
 
-		if evt['type'] == 'start':
-			self.suricate_server._watchers[session_id()].start_cam_ctrl(state_data)
-		else:
-			self.suricate_server._watchers[session_id()].stop_cam_ctrl(state_data)
+		if id == 'left':
+			if evt['type'] == 'start':
+				self.suricate_server._watchers[session_id()].start_cam_ctrl(state_data)
+			else:
+				self.suricate_server._watchers[session_id()].stop_cam_ctrl(state_data)
 
 	def on_joystick_move(self, data):
 		""" 

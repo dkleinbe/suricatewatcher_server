@@ -24,9 +24,9 @@ class Suricate {
   add_watcher(watcher_id)
   remove_watcher(watcher_id)
 
-  send_start_cam_ctrl_evt()
-  send_stop_cam_ctrl_evt()
-  send_move_cam_evt()
+  do_start_cam_ctrl_evt()
+  do_stop_cam_ctrl_evt()
+  do_move_cam_evt()
 }
 
 class Watcher {
@@ -38,18 +38,18 @@ class Watcher {
   watch_suricate(suricate_id)
   unwatch_suricate()
 
-  send_start_cam_ctrl_evt()
-  send_stop_cam_ctrl_evt()
-  send_move_cam_evt()
+  start_cam_ctrl_evt()
+  stop_cam_ctrl_evt()
+  move_cam_evt()
 }
 
 class CamController {
   states
   transitions
 
-  start_cam_ctrl_evt()
-  stop_cam_ctrl_evt()
-  move_cam_evt()
+  evt_start_cam_ctrl()
+  evt_stop_cam_ctrl()
+  evt_move_cam()
 
   start_cam_ctrl()
   stop_cam_ctrl()
@@ -70,7 +70,7 @@ Server --> WatcherCmdNS
 
 Watcher "watched_suricate" --> Suricate
 Watcher "server" --> Server
-Suricate --> CamController
+Watcher --> CamController
 
 
 Suricate o-- Watcher
