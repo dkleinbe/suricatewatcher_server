@@ -82,7 +82,8 @@ class WatcherCmdNS(Namespace):
 		state_data = data['data']
 		id = data['joystick_id']
 		evt = data['evt']
-		logger.info("+ joystick[%s] evt type: [%s] position: %s", id, evt['type'], state_data['position'])
+
+		logger.debug("+ joystick[%s] evt type: [%s] position: %s", id, evt['type'], state_data['position'])
 
 		if id == 'left':
 			if evt['type'] == 'start':
@@ -96,6 +97,7 @@ class WatcherCmdNS(Namespace):
 		"""
 		move_data = data['data']
 		id = data['joystick_id']
+		
 		logger.debug("+ joystick[%s] moved force: %.2f position %s", id, move_data['force'], move_data['position'])
 
 		self.suricate_server._watchers[session_id()].move_cam(data)

@@ -43,6 +43,9 @@
             "suricate_server": {
                 
                 "level": "INFO"
+            },
+            "transitions": {
+                "level": "WARNING"
             }
         },
         "root": {

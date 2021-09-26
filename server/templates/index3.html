@@ -84,6 +84,12 @@
                     //socket_cmd.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
                 });
 
+                socket_cmd.on("disconnect", () => {
+                    
+                    alert("Disconnected from suricate server");
+                });
+
+
                 socket_cmd.on('add_suricate', function(msg, cb) {
                     //var aze = JSON.parse(msg)
                     $('#suricates-select').append('<option id="' + msg.suricate_id + '" value="' + msg.suricate_id + '">' + msg.name + '</option>')
@@ -127,11 +133,11 @@
     </head>
     <body>
         <div id="streamstage">
-            <video controls autoplay muted id="stream"></video>
+            <video  autoplay muted id="stream"></video>
         </div>
-        <di><p>JOYSTICK</p></di>
+        <di style="display: none;"><p>JOYSTICK</p></di>
         <div id="left">
-            <div id="left_debug">
+            <div id="left_debug" style="display: none;">
                 <ul>
                     <li class="position">
                         position :
@@ -171,7 +177,7 @@
             </div>            
         </div>
         <div id="right">
-            <div id="right_debug">
+            <div id="right_debug" style="display: none;">
                 <ul>
                     <li class="position">
                         position :
@@ -280,15 +286,15 @@
             function bindNipple (joystick) {
                 joystick.on('start end', function (evt, data) {
                     dump(evt.type, joystick.options.zone.id);
-                    debug(data, joystick.options.zone.id);
+                    //debug(data, joystick.options.zone.id);
                     joystick_state(evt, joystick.options.zone.id, data, );
                 }).on('move', function (evt, data) {
-                    debug(data, joystick.options.zone.id);
+                    //debug(data, joystick.options.zone.id);
                     joystick_move(data, joystick.options.zone.id);
                 }).on('dir:up plain:up dir:left plain:left dir:down ' +
                     'plain:down dir:right plain:right',
                     function (evt, data) {
-                        dump(evt.type, joystick.options.zone.id);
+                        //dump(evt.type, joystick.options.zone.id);
                     }
                 ).on('pressure', function (evt, data) {
                     //debug({pressure: data});
@@ -337,7 +343,7 @@
                 }, 0);
             }            
         </script>
-        <h2 style="background-color:white;">Logs</h2>
-        <div id="log" ></div>
+        <h2 style="background-color:white; display: none;" >Logs</h2>
+        <div id="log" style="display: none;"></div>
     </body>
 </html>
