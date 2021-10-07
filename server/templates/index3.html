@@ -56,6 +56,15 @@
                 position: fixed;
                 top: 10px
             }
+
+            #meters {
+                margin: 0 auto;
+                width: 200px;
+            }
+
+            #meter_temp {
+                width: 200px;
+            }
         </style>	
         <script type="text/javascript" charset="utf-8">
             $(document).ready(function() {
@@ -103,6 +112,11 @@
                     if (cb)
                         cb();
                 });
+
+                socket_cmd.on('suricate_data', function(msg, cb) {
+                    console.log('recieving data, cpu temp: ' + msg.cpu_temp);
+                })
+                
                 socket_video.on('frame', function(msg, cb) {
                     //$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
                     //var dt = new Date();
@@ -216,6 +230,9 @@
                     <option id="{{ value.suricate_cmd_sid }}" value="{{ value.suricate_cmd_sid }}">Suricate {{ loop.index }}</option>
                 {% endfor %}
             </select>
+        </div>
+        <div id="meters">
+            <meter id="meter_temp" max="100" low="25" high="75" optimum="65" value="15"></meter>
         </div>        
         <script src="{{ url_for('static', filename='/scripts/nipplejs.js') }}"></script>
         <script>

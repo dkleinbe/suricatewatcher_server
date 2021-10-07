@@ -44,6 +44,9 @@
                 
                 "level": "INFO"
             },
+            "socketio": {
+                "level": "DEBUG"
+            },
             "transitions": {
                 "level": "WARNING"
             }

@@ -59,6 +59,14 @@ class SuricateCmdNS(Namespace):
 				
 		emit('update', self.suricate_server.toJSON() , namespace='/debug', broadcast=True, skip_sid=session_id()) 
 
+	def on_suricate_data(self, data):
+
+		logger.info("+ suricate data : %s", data)
+		
+		room = self.suricate_server._suricates[data['id']].room
+		emit('suricate_data', data, 
+		     namespace='/watcher_cmd', to=room, include_self=False)
+
 	def on_disconnect(self):
 
 		logger.info("+ %s disconnect %d", self.namespace, SuricateCmdNS.connection_count)

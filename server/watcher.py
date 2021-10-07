@@ -5,21 +5,27 @@ import typing
 
 from typing import Optional
 
-from  my_types import SessionId
+from my_types import SessionId
 from suricate import Suricate
+
 if typing.TYPE_CHECKING:
 	from suricate_server import Server
+	
 
 logger = logging.getLogger('suricate_server.' + __name__)
 
 class Watcher:
-	def __init__(self, id : SessionId, suricate_server : Server):
+	def __init__(self, watcher_cmd_sid : SessionId, suricate_server : Server):
+		""" init a Suricat.
 
-		self.id : SessionId = id
-		self.suricate_server = suricate_server
-		self.watcher_cmd_sid        : SessionId = SessionId('NONE')
+			:param watcher_cmd_sid: The session id of the watcher_cmd namespace.
+
+		"""
+		self.id                     : SessionId  = watcher_cmd_sid
 		self.watcher_video_cast_sid : SessionId = SessionId('NONE')
-		self.watched_suricate_id    : SessionId = SessionId('NONE')
+		
+		self.suricate_server = suricate_server
+		
 		self.watched_suricate       : Optional[Suricate] = None
 		
 		
@@ -37,14 +43,14 @@ class Watcher:
 		self.watcher_video_cast_sid = watcher_video_cast_sid
 		# TODO: check if we have a valid suricate_sid: do self.suricate_server._suricates[suricate_sid] exist?
 		suricate = self.suricate_server._suricates[suricate_sid]
-		suricate.add_watcher(self.watcher_video_cast_sid)
+		suricate.add_watcher(self)
 		self.watched_suricate = suricate
 		self.cam_controler : CamController = CamController(suricate)
 
 	def stop_watching(self) -> None :
 
 		if (self.watched_suricate != None):
-			self.watched_suricate.remove_watcher(self.watcher_video_cast_sid)
+			self.watched_suricate.remove_watcher(self)
 		self.watched_suricate = None
 
 	def start_cam_ctrl(self, data):

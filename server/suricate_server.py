@@ -12,8 +12,8 @@ import time
 import json
 
 from my_types import SessionId
-from suricate import Suricate
 from watcher import Watcher
+from suricate import Suricate
 from suricate_video_stream_ns import SuricateVideoStreamNS
 from suricate_cmd_ns import SuricateCmdNS
 from watcher_debug_ns import WatcherDebugNS
@@ -87,7 +87,7 @@ class Server:
 
 	def register_watcher(self, sid : SessionId):
 
-		watcher = Watcher(id=sid, suricate_server=self)
+		watcher = Watcher(watcher_cmd_sid=sid, suricate_server=self)
 		self._watchers[sid] = watcher
 
 	def unregister_watcher(self, id : SessionId) -> None:
@@ -158,6 +158,10 @@ def index3():
 @app.route('/joystick')
 def joystick():
 	return render_template('dual-joysticks.html', async_mode=socketio.async_mode, suricate_server=my_server)
+
+@app.route('/graph')
+def graph():
+	return render_template('stream-data.html', async_mode=socketio.async_mode, suricate_server=my_server)
 
 @app.route('/debug')
 def debug():
