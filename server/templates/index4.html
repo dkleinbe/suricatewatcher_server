@@ -1,0 +1,359 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Suricate watcher</title>
+        <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.0/socket.io.js"></script>
+        <script src="{{ url_for('static', filename='/scripts/jmuxer.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/nipplejs.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/joysticks.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/chart.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/luxon.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/chartjs-adapter-luxon.js') }}"></script>
+        <script src="{{ url_for('static', filename='/scripts/chartjs-plugin-streaming.min.js') }}"></script>
+        <style>
+            html, body {
+                position: relative;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            #left {
+                position: fixed;
+                top: 0;
+                float: left;
+                width: 50%;
+                min-height: 100vh;
+                background: rgba(0, 255, 0, 0.0);
+            }
+
+            #right {
+                position: fixed;
+                top: 0;
+                right: 0;
+                float: right;
+                width: 50%;
+                min-height: 100vh;
+                background: rgba(0, 0, 255, 0.0);
+            }
+            #streamstage{
+                position: fixed;
+                top: 0;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            #stream {
+  
+                right: 0;
+                bottom: 0;
+                max-width: 100%; 
+                max-height: 100vh;
+                min-width: 100%;
+                margin: 0 auto;
+            }
+
+            #suricate-selector {
+                position: fixed;
+                top: 10px
+            }
+
+            #meters {
+                margin: 0 auto;
+                width: 200px;
+            }
+
+            #meter_temp {
+                width: 200px;
+            }
+            #chartDiv {
+                height: 100vh;
+                background-color: #FFFFFF77
+            }
+            #chartInner {
+                position: absolute;
+                bottom: 0;
+                width: 100vw;
+                background-color: #FFFFFF77
+            }            
+        </style>	
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function() {
+
+                socket_cmd = io('/watcher_cmd');
+                var socket_video = io('/watcher_video_cast');
+                var video_sid = '';
+                var previous_suricate_id = 'NONE';
+                // flushingTime: 0,
+                
+                var jmuxer = new JMuxer({
+                    node: 'stream',
+                    mode: 'video',
+                    fps: 30,
+                    flushingTime: 0,
+                    debug: false
+                    });
+                
+
+                socket_video.on('connect', function() {
+                    //socket_video.emit('my_event', {data: 'connected to the SocketServer[video_cast]...'});
+                    video_sid = socket_video.id;
+                });
+
+                socket_cmd.on('connect', function() {
+                    //socket_cmd.emit('my_event', {data: 'connected to the SocketServer[cmd]...'});
+                });
+
+                socket_cmd.on("disconnect", () => {
+                    
+                    alert("Disconnected from suricate server");
+                });
+
+
+                socket_cmd.on('add_suricate', function(msg, cb) {
+                    //var aze = JSON.parse(msg)
+                    $('#suricates-select').append('<option id="' + msg.suricate_id + '" value="' + msg.suricate_id + '">' + msg.name + '</option>')
+                    if (cb)
+                        cb();
+                });
+
+                socket_cmd.on('remove_suricate', function(msg, cb) {
+                    console.log('removing :' + msg.suricate_id);
+                    $('#' + msg.suricate_id).remove();
+                    if (cb)
+                        cb();
+                });
+
+                socket_cmd.on('suricate_data', function(msg, cb) {
+                    //console.log('recieving data, cpu temp: ' + msg.cpu_temp);
+                    myChart.data.datasets[0].data.push({
+                                                x: Date.now(),
+                                                y: msg.cpu_temp
+                                            });
+                    myChart.data.datasets[1].data.push({
+                                                x: Date.now(),
+                                                y: msg.cpu_load
+                                                                    
+                    });                                            
+                    myChart.data.datasets[2].data.push({
+                                                x: Date.now(),
+                                                y: msg.distance_sensor
+                    });
+                });
+
+                socket_video.on('frame', function(msg, cb) {
+                    //$('#video-frame').attr('src', 'data:image/jpg;base64,' + msg.frame);
+                    //var dt = new Date();
+                    //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html() + "TRANSPORT TIME : " + (dt.getTime() - (msg.time / 1000000)));
+                    //console.log('visibilite: ' + document.visibilityState);
+                    if (document.visibilityState == "visible")
+                        
+                        jmuxer.feed({
+                                video: new Uint8Array(msg.frame)
+                            });	
+                    
+                        
+                    //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
+
+                });
+
+                $('#suricates-select').change(function(event) {
+                    var id = $( "select option:selected" ).attr('value')
+                    console.log(id);
+                    console.log(video_sid);
+                    socket_cmd.emit('suricate_selected', { suricate_id : id, watcher_sid : video_sid, previous_suricate_id : previous_suricate_id });
+                    previous_suricate_id = id;
+                    return false;
+                });
+
+                const config = {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Cpu temp',
+                                data: [],
+                                yAxisID: 'yCpuTemp',
+                                borderColor: 'rgb(255, 99, 132)',
+                                cubicInterpolationMode: 'monotone',
+
+                            },
+                            {
+                                label: '% cpu load',
+                                data: [],
+                                yAxisID: 'yCpuLoad',
+                                borderColor: 'rgb(75, 192, 192)',
+                                cubicInterpolationMode: 'monotone',
+                            },
+                            {
+                                label: 'distance (cm)',
+                                data: [],
+                                yAxisID: 'yDistance',
+                                borderColor: 'rgb(192, 75, 192)',
+                                cubicInterpolationMode: 'monotone',
+                            }                            
+                        ]
+                    },
+                    options: {
+                        responsive : true,
+                        maintainAspectRatio: false,
+                        radius: 0,
+                        scales: {
+                            x: {
+                                type: 'realtime',
+                            },
+                            yCpuTemp: {
+                                min: 0,
+                                max: 100,
+                                display: false,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                                },
+                            },
+                            yCpuLoad: {
+                                min: 0,
+                                max: 100
+                            },
+                            yDistance: {
+                                min: 0,
+                                max: 20,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                                },
+                            }                            
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                                labels: {
+                                    color: 'rgb(255, 99, 132)'
+                                },
+                                position: 'bottom'
+                            },
+                            streaming: {
+                                duration: 40000,
+                                refresh: 250,
+                                delay: 500
+                            }
+                        }
+                    }
+                };
+                const myChart = new Chart(
+                    document.getElementById('myChart'),
+                                            config
+                                        );                
+            });
+        </script>
+        
+    </head>
+    <body>
+        <div id="streamstage">
+            <video  autoplay muted id="stream"></video>
+        </div>
+        <di style="display: none;"><p>JOYSTICK</p></di>
+        <div id="left">
+            <div id="left_debug" style="display: none;">
+                <ul>
+                    <li class="position">
+                        position :
+                        <ul>
+                            <li class="x">x : <span class='data'></span></li>
+                            <li class="y">y : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                    <li class="force">force : <span class='data'></span></li>
+                    <li class="pressure">pressure : <span class='data'></span></li>
+                    <li class="distance">distance : <span class='data'></span></li>
+                    <li class="vector">
+                        force vector :
+                        <ul>
+                            <li class="x">x : <span class='data'></span></li>
+                            <li class="y">y : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                    <li class="vector">vector : <span class='data'></span></li>
+                    <li class="angle">
+                        angle :
+                        <ul>
+                            <li class="radian">radian : <span class='data'></span></li>
+                            <li class="degree">degree : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                    <li class="direction">
+                        direction :
+                        <ul>
+                            <li class="x">x : <span class='data'></span></li>
+                            <li class="y">y : <span class='data'></span></li>
+                            <li class="angle">angle : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="dump"></div>
+            </div>            
+        </div>
+        <div id="right">
+            <div id="right_debug" style="display: none;">
+                <ul>
+                    <li class="position">
+                        position :
+                        <ul>
+                            <li class="x">x : <span class='data'></span></li>
+                            <li class="y">y : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                    <li class="force">force : <span class='data'></span></li>
+                    <li class="pressure">pressure : <span class='data'></span></li>
+                    <li class="distance">distance : <span class='data'></span></li>
+                    <li class="angle">
+                        angle :
+                        <ul>
+                            <li class="radian">radian : <span class='data'></span></li>
+                            <li class="degree">degree : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                    <li class="direction">
+                        direction :
+                        <ul>
+                            <li class="x">x : <span class='data'></span></li>
+                            <li class="y">y : <span class='data'></span></li>
+                            <li class="angle">angle : <span class='data'></span></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="dump"></div>
+            </div>            
+        </div>
+        <div id="chartDiv">
+            <div id="chartInner">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        <div id="suricate-selector">
+            <h3>Select suricate to watch</h3>
+            <select name="suricates" id="suricates-select">
+                <option value="NONE">--Please choose an option--</option>
+                {% for key, value in suricate_server._suricates.items() %}
+                    <option id="{{ value.suricate_cmd_sid }}" value="{{ value.suricate_cmd_sid }}">Suricate {{ loop.index }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="meters" style="display: none;">
+            <meter id="meter_temp" max="100" low="25" high="75" optimum="65" value="15"></meter>
+        </div>        
+        
+        <h2 style="background-color:white; display: none;" >Logs</h2>
+        <div id="log" style="display: none;"></div>
+
+        <script>
+            initJoysticks();
+        </script>
+
+    </body>
+</html>

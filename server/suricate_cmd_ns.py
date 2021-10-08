@@ -61,7 +61,7 @@ class SuricateCmdNS(Namespace):
 
 	def on_suricate_data(self, data):
 
-		logger.info("+ suricate data : %s", data)
+		logger.debug("+ suricate data : %s", data)
 		
 		room = self.suricate_server._suricates[data['id']].room
 		emit('suricate_data', data, 

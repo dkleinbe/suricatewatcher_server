@@ -155,6 +155,10 @@ def index2():
 def index3():
 	return render_template('index3.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
 
+@app.route('/index4')
+def index4():
+	return render_template('index4.html', async_mode=socketio.async_mode, connection_count=connection_count, suricate_server=my_server)
+
 @app.route('/joystick')
 def joystick():
 	return render_template('dual-joysticks.html', async_mode=socketio.async_mode, suricate_server=my_server)
