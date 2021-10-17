@@ -94,7 +94,7 @@
                 var jmuxer = new JMuxer({
                     node: 'stream',
                     mode: 'video',
-                    fps: 30,
+                    fps: 60,
                     flushingTime: 0,
                     debug: false
                     });
@@ -135,15 +135,22 @@
                                                 x: Date.now(),
                                                 y: msg.cpu_temp
                                             });
+
                     myChart.data.datasets[1].data.push({
                                                 x: Date.now(),
                                                 y: msg.cpu_load
                                                                     
-                    });                                            
+                    });                                     
                     myChart.data.datasets[2].data.push({
                                                 x: Date.now(),
                                                 y: msg.distance_sensor
                     });
+                    /*
+                    myChart.data.datasets[3].data.push({
+                                                x: Date.now(),
+                                                y: msg.distance_filtered
+                    });
+                    */
                 });
 
                 socket_video.on('frame', function(msg, cb) {
@@ -151,13 +158,18 @@
                     //var dt = new Date();
                     //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html() + "TRANSPORT TIME : " + (dt.getTime() - (msg.time / 1000000)));
                     //console.log('visibilite: ' + document.visibilityState);
-                    if (document.visibilityState == "visible")
+                    if (document.visibilityState == "visible") {
                         
                         jmuxer.feed({
                                 video: new Uint8Array(msg.frame)
                             });	
                     
-                        
+                        //console.log('frame size:' + msg.frame.byteLength)
+                        myChart.data.datasets[3].data.push({
+                                                x: Date.now(),
+                                                y: msg.frame.byteLength
+                                                });
+                    }
                     //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
 
                 });
@@ -189,14 +201,23 @@
                                 yAxisID: 'yCpuLoad',
                                 borderColor: 'rgb(75, 192, 192)',
                                 cubicInterpolationMode: 'monotone',
-                            },
+                            },                          
                             {
                                 label: 'distance (cm)',
                                 data: [],
                                 yAxisID: 'yDistance',
                                 borderColor: 'rgb(192, 75, 192)',
                                 cubicInterpolationMode: 'monotone',
-                            }                            
+                            }, 
+                            
+                            {
+                                label: 'frame size (bytes)',
+                                data: [],
+                                yAxisID: 'frameSize',
+                                borderColor: 'rgb(192, 192, 192)',
+                                cubicInterpolationMode: 'monotone',
+                            }  
+                                                                                  
                         ]
                     },
                     options: {
@@ -222,8 +243,16 @@
                             },
                             yDistance: {
                                 min: 0,
-                                max: 20,
+                                max: 40,
                                 position: 'right',
+                                grid: {
+                                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                                },
+                            },
+                            frameSize: {
+                                min: 0,
+                                max: 60000,
+                                position: 'left',
                                 grid: {
                                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                                 },

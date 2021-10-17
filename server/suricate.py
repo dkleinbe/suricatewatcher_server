@@ -5,6 +5,7 @@ from typing import List
 from  my_types import SessionId
 from flask_socketio import join_room, leave_room, emit
 from cam_controller import CamController
+from filters import ButterFilter
 
 if typing.TYPE_CHECKING:
 	from watcher import Watcher
@@ -24,6 +25,7 @@ class Suricate:
 		self.suricate_cmd_sid          : SessionId = sid
 		self.suricate_video_stream_sid : SessionId = SessionId('NONE')
 		self.watchers                  : List[Watcher] = []
+		self.distance_filter           : ButterFilter = ButterFilter()
 		
 	def add_watcher(self, watcher : Watcher) -> None:
 		""" Adds a watcher to the suricate
@@ -83,3 +85,17 @@ class Suricate:
 		
 		emit('move_cam', data, namespace='/suricate_cmd', to=self.suricate_cmd_sid)
 
+	def emit_data(self, data):
+
+		#data['distance_filtered'] = self.filter_distance(data['distance_sensor'])
+
+		room = self.room
+
+		emit('suricate_data', data, 
+		     namespace='/watcher_cmd', to=room, include_self=False)
+
+		pass
+
+	def filter_distance(self, distance):
+
+		return self.distance_filter.push_data(distance)

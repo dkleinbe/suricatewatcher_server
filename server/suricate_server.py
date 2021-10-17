@@ -1,3 +1,4 @@
+from collections import deque
 from typing import List
 import coloredlogs, logging
 import logging.config
@@ -20,6 +21,7 @@ from watcher_debug_ns import WatcherDebugNS
 from watcher_cmd_ns import WatcherCmdNS
 from watcher_video_cast_ns import WatcherVideoCastNS
 from cam_controller import CamController
+from filters import ButterFilter
 
 
 
@@ -57,7 +59,7 @@ class MyEncoder(json.JSONEncoder):
 	def default(self, obj):
 
 		my_logger.debug("Checking obj: %s", str(type(obj)))
-		if isinstance(obj,(Server, Suricate, Watcher)):
+		if isinstance(obj,(Server, Suricate, Watcher, ButterFilter)):
 
 			if obj in self.proc_objs:
 
@@ -66,7 +68,7 @@ class MyEncoder(json.JSONEncoder):
 			self.proc_objs.append(obj)
 
 			return obj.__dict__
-		if isinstance(obj, (CamController,)):
+		if isinstance(obj, (CamController, ButterFilter)):
 			return str(type(obj))
 
 		return obj.__dict__
@@ -134,8 +136,8 @@ class Server:
 		self._watchers_count = count
 	
 	def toJSON(self):
-		
-		return json.dumps(self, cls=MyEncoder, check_circular=False, indent=2)
+		return "deprecated"
+		#return json.dumps(self, cls=MyEncoder, check_circular=False, indent=2)
 		
 		
 		

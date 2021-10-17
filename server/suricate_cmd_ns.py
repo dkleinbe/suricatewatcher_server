@@ -5,7 +5,7 @@ from flask import request
 from flask_socketio import Namespace, emit, namespace
 import typing
 if typing.TYPE_CHECKING:
-	from suricate_server import Server, SessionId
+	from suricate_server import Server, SessionId, Suricate
 
 
 # FIXME: find a better solution to avoid pylance reporting that sid is not a member of request
@@ -63,9 +63,9 @@ class SuricateCmdNS(Namespace):
 
 		logger.debug("+ suricate data : %s", data)
 		
-		room = self.suricate_server._suricates[data['id']].room
-		emit('suricate_data', data, 
-		     namespace='/watcher_cmd', to=room, include_self=False)
+		suricate : Suricate = self.suricate_server._suricates[data['id']]
+
+		suricate.emit_data(data)
 
 	def on_disconnect(self):
 
