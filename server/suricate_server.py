@@ -7,6 +7,7 @@ from typing import NewType, Optional
 
 from flask import Flask, render_template, session, request 
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_sqlalchemy import SQLAlchemy
 
 import base64
 import time
@@ -24,6 +25,8 @@ from cam_controller import CamController
 from filters import ButterFilter
 
 
+# init SQLAlchemy so we can use it later in our models
+db = SQLAlchemy()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
