@@ -1,9 +1,10 @@
-from my_types import SessionId
 from transitions import Machine, State
+
+from .my_types import SessionId
 
 import typing
 if typing.TYPE_CHECKING:
-    from suricate import Suricate
+    from .suricate import Suricate
 
 
 class CamController(object):

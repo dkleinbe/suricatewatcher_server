@@ -22,7 +22,7 @@ def login_post():
 
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
-    if not user or not check_password_hash(user.password, password):
+    if password is None or not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
 
@@ -40,6 +40,10 @@ def signup_post():
 	email = request.form.get('email')
 	name = request.form.get('name')
 	password = request.form.get('password')
+
+	if not password:
+		flash('Password is required')
+		return redirect(url_for('auth.signup'))
 
 	user = User.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
 

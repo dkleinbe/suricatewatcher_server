@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-
+from flask_socketio import SocketIO
+import json
+from .suricate_server import Server
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
+socketio = SocketIO() #, logger = my_logger)
+server = Server(socketio)
 
 def create_app():
 	app = Flask(__name__)
@@ -15,7 +19,7 @@ def create_app():
 	db.init_app(app)
 
 	login_manager = LoginManager()
-	login_manager.login_view = 'auth.login'
+	login_manager.login_view = 'auth.login' # type: ignore
 	login_manager.init_app(app)
 
 	from .models import User
@@ -33,5 +37,25 @@ def create_app():
 	from .main import main as main_blueprint
 	app.register_blueprint(main_blueprint)
 
+	socketio.init_app(app)
+
 	return app
-	
+
+import logging.config
+import coloredlogs, logging
+
+with open('./server/logger_conf2.json') as json_file:
+	conf = json.load(json_file)
+logging.config.dictConfig(conf['logging'])
+
+my_logger = logging.getLogger('suricate_server')
+
+my_logger.debug('Logger debug')
+my_logger.info('Logger init done')
+my_logger.warning('Logger warning')
+my_logger.error('Logger error')
+my_logger.critical('Logger critical')
+
+app = create_app()
+
+

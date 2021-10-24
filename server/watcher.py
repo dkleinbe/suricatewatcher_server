@@ -1,15 +1,14 @@
 from __future__ import annotations
 import logging
-from cam_controller import CamController
 import typing
-
 from typing import Optional
 
-from my_types import SessionId
-from suricate import Suricate
+from .cam_controller import CamController
+from .my_types import SessionId
+from .suricate import Suricate
 
 if typing.TYPE_CHECKING:
-	from suricate_server import Server
+	from .suricate_server import Server
 	
 
 logger = logging.getLogger('suricate_server.' + __name__)

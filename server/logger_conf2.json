@@ -7,11 +7,12 @@
 				"()": "coloredlogs.ColoredFormatter",
 				"style": "{",
 				"datefmt": "%H:%M:%S",
-				"format": "{asctime:s}-{name:20.20s}-{module:20.20s}-{levelname:.^8s}: {message:s}",
+				"format": "{asctime:s}-{threadName:10.10s}-{name:30.30s}-{module:20.20s}-{levelname:.^8s}: {message:s}",
 				"field_styles": {
 					"asctime": {"color": "green"}, 
 					"hostname": {"color": "white"}, 
 					"levelname": {"bold": "true", "color": "white"}, 
+                    "threadName": {"color": "magenta", "bright" : "true"},
 					"name": {"color": "magenta", "bright" : "true"}, 
 					"programname": {"color": "cyan"}, 
 					"username": {"color": "yellow"}},
@@ -40,16 +41,23 @@
             }
         },
         "loggers": { 
+            "werkzeug": {
+                "level": "WARNING"
+            },
             "suricate_server": {
                 
                 "level": "INFO"
             },
+            "suricate_server.server.suricate_video_stream_ns": {
+                "level": "INFO"
+            },
             "socketio": {
                 "level": "DEBUG"
-            },
+            },            
             "transitions": {
                 "level": "WARNING"
             }
+
         },
         "root": {
             "handlers": ["console"],
