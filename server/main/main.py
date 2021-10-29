@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
-from . import db, socketio, server
+from server import db, socketio, server
 
 
-main = Blueprint('main', __name__)
+main = Blueprint(
+    'main', 
+    __name__, 
+    template_folder='templates',
+    static_folder='static')
 
 @main.route('/')
 def index():
