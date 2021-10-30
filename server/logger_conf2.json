@@ -44,7 +44,7 @@
             "werkzeug": {
                 "level": "WARNING"
             },
-            "suricate_server": {
+            "server": {
                 
                 "level": "INFO"
             },
@@ -52,8 +52,11 @@
                 "level": "INFO"
             },
             "socketio": {
-                "level": "DEBUG"
-            },            
+                "level": "ERROR"
+            },
+            "engineio": {
+                "level": "ERROR"
+            },        
             "transitions": {
                 "level": "WARNING"
             }

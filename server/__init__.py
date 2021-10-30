@@ -5,16 +5,37 @@ from flask_socketio import SocketIO
 import json
 from .suricate_server import Server
 
+from config import Config
+
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
-socketio = SocketIO() #, logger = my_logger)
-server = Server(socketio)
+server = None
+socketio = None
+
+import logging.config
+import coloredlogs, logging
+
+with open('./server/logger_conf2.json') as json_file:
+	conf = json.load(json_file)
+logging.config.dictConfig(conf['logging'])
+
+my_logger = logging.getLogger(__name__)
+
+my_logger.debug('Logger debug')
+my_logger.info('Logger info')
+my_logger.warning('Logger warning')
+my_logger.error('Logger error')
+my_logger.critical('Logger critical')
 
 def create_app():
 	app = Flask(__name__)
+	app.config.from_object("config.Config")
 
-	app.config['SECRET_KEY'] = 'secret-key-goes-here'
-	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+	global socketio, my_logger
+	socketio = SocketIO() # logger = my_logger
+
+	global server
+	server = Server(socketio)
 
 	db.init_app(app)
 
@@ -39,23 +60,9 @@ def create_app():
 
 	socketio.init_app(app)
 
-	return app
+	return app, socketio
 
-import logging.config
-import coloredlogs, logging
 
-with open('./server/logger_conf2.json') as json_file:
-	conf = json.load(json_file)
-logging.config.dictConfig(conf['logging'])
 
-my_logger = logging.getLogger('suricate_server')
-
-my_logger.debug('Logger debug')
-my_logger.info('Logger init done')
-my_logger.warning('Logger warning')
-my_logger.error('Logger error')
-my_logger.critical('Logger critical')
-
-app = create_app()
 
 

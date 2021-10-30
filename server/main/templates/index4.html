@@ -89,6 +89,8 @@
                 var socket_video = io('/watcher_video_cast');
                 var video_sid = '';
                 var previous_suricate_id = 'NONE';
+                var lastDate = 0;
+                var byteLength = 0;
                 // flushingTime: 0,
                 
                 var jmuxer = new JMuxer({
@@ -112,6 +114,7 @@
                 socket_cmd.on("disconnect", () => {
                     
                     alert("Disconnected from suricate server");
+                    location.reload();
                 });
 
 
@@ -165,10 +168,24 @@
                             });	
                     
                         //console.log('frame size:' + msg.frame.byteLength)
-                        myChart.data.datasets[3].data.push({
-                                                x: Date.now(),
-                                                y: msg.frame.byteLength
-                                                });
+                        //
+                        // compute byte/s
+                        //
+                        newDate = Date.now()
+                        delta = Math.floor((newDate - lastDate) / 1000);
+                        byteLength += msg.frame.byteLength;
+
+                        if (delta >= 1) {
+
+                            //console.log(byteLength);
+
+                            myChart.data.datasets[3].data.push({
+                                                    x: newDate,
+                                                    y: byteLength
+                                                    });
+                            byteLength = 0;
+                            lastDate = newDate
+                        }
                     }
                     //$('#log').append('<br>' + $('<div/>').text('logs # FRAME' + msg.frame_count).html());
 
@@ -251,7 +268,7 @@
                             },
                             frameSize: {
                                 min: 0,
-                                max: 60000,
+                                max: 350000,
                                 position: 'left',
                                 grid: {
                                     drawOnChartArea: false, // only want the grid lines for one axis to show up

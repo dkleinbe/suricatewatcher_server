@@ -23,10 +23,13 @@ from .watcher_video_cast_ns import WatcherVideoCastNS
 from .cam_controller import CamController
 from .filters import ButterFilter
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
 class Server:
 	def __init__(self, socketio):
+
+		logger.info("+ Init Server")
+
 		self._suricate_count : int = 0
 		self._watchers_count : int = 0
 		self._suricates: dict[SessionId, Suricate] = {}

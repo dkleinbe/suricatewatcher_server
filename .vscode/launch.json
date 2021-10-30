@@ -8,9 +8,9 @@
             "name": "Suricate server",
             "type": "python",
             "request": "launch",
-            "program": "suricate_server.py",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/server"
+            "program": "app.py",
+            "console": "integratedTerminal"
+            
         },
         {
             "name": "Python: Current File",

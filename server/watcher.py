@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
 	from .suricate_server import Server
 	
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
 class Watcher:
 	def __init__(self, watcher_cmd_sid : SessionId, suricate_server : Server):
