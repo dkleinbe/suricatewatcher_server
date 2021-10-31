@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 def session_id() -> SessionId:
 	return request.sid # type: ignore
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
 class WatcherCmdNS(Namespace):
 	#

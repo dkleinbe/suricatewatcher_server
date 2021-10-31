@@ -3,7 +3,7 @@ import base64
 from flask_socketio import Namespace, emit
 import typing
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
 
 class WatcherDebugNS(Namespace):

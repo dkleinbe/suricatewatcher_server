@@ -12,17 +12,17 @@ if typing.TYPE_CHECKING:
 def session_id() -> SessionId:
 	return request.sid # type: ignore
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
     
 class SuricateCmdNS(Namespace):
 
-	logger.info('class SuricateCmdSuricateNS')
+	logger.info('class SuricateCmdNS')
 	
 	connection_count = 0
 
 	def __init__(self, namespace, suricate_server : Server):
-		logger.info("+ Init SuricateCmdSuricateNS")
+		logger.info("+ Init SuricateCmdNS")
 		super(Namespace, self).__init__(namespace)
 		
 		self.suricate_server = suricate_server

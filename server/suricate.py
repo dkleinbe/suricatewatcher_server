@@ -2,15 +2,16 @@ from __future__ import annotations
 import logging
 import typing
 from typing import List
-from  my_types import SessionId
 from flask_socketio import join_room, leave_room, emit
-from cam_controller import CamController
-from filters import ButterFilter
+
+from .filters import ButterFilter
+from .cam_controller import CamController
+from .my_types import SessionId
 
 if typing.TYPE_CHECKING:
-	from watcher import Watcher
+	from .watcher import Watcher
 
-logger = logging.getLogger('suricate_server.' + __name__)
+logger = logging.getLogger(__name__)
 
 class Suricate:
 
